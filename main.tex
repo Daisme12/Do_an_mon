@@ -1,0 +1,69 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ==============================================================================
+% 1. CẤU HÌNH GÓI & ĐỊNH NGHĨA KÝ HIỆU TOÁN
+% ==============================================================================
+\input{config/preamble}
+\input{config/commands}
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+% 2. CÁC TRANG ĐẦU (FRONTMATTER: BÌA, LỜI MỞ ĐẦU, MỤC LỤC)
+% ------------------------------------------------------------------------------
+\pagenumbering{roman}
+
+% Trang bìa chính
+\input{frontmatter/cover}
+
+% Lời mở đầu / tóm tắt đề tài
+\input{frontmatter/abstract}
+\clearpage
+
+% Mục lục
+\tableofcontents
+\clearpage
+
+% Danh sách hình vẽ & bảng biểu
+\listoffigures
+\addcontentsline{toc}{chapter}{Danh mục hình vẽ}
+\clearpage
+
+\listoftables
+\addcontentsline{toc}{chapter}{Danh mục bảng biểu}
+\clearpage
+
+% ------------------------------------------------------------------------------
+% 3. NỘI DUNG CHÍNH (MAINMATTER: CÁC CHƯƠNG)
+% ------------------------------------------------------------------------------
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% Chương 1: Tổng quan và cơ sở về tín hiệu thưa
+\input{chapters/chuong1_tong_quan}
+
+% Chương 2: Các mô hình tối ưu và hình học của chuẩn l1
+\input{chapters/chuong2_mo_hinh_toi_uu}
+
+% Chương 3: Các điều kiện khôi phục và tính ổn định
+\input{chapters/chuong3_dieu_kien_khoi_phuc}
+
+% Chương 4: Thuật toán giải số và phân tích hội tụ
+\input{chapters/chuong4_thuat_toan}
+
+% Chương 5: Thiết kế thực nghiệm và đánh giá kết quả
+\input{chapters/chuong5_thuc_nghiem}
+
+% Kết luận và hướng phát triển
+\input{chapters/ket_luan}
+
+% ------------------------------------------------------------------------------
+% 4. TÀI LIỆU THAM KHẢO (BACKMATTER)
+% ------------------------------------------------------------------------------
+\clearpage
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{bibliography/references}
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+
+\end{document}

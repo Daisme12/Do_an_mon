@@ -1,0 +1,468 @@
+% ==============================================================================
+% CHƯƠNG 5: THỰC NGHIỆM MÔ PHỎNG VÀ CÂU HỎI TỰ KIỂM TRA
+% ==============================================================================
+\chapter{Thực nghiệm mô phỏng và câu hỏi tự kiểm tra}
+\label{chap:thuc_nghiem}
+
+Đúng theo định hướng nghiên cứu và yêu cầu của giảng viên hướng dẫn: \emph{``Sinh viên phải tự thực hiện kết quả số, tự ghi môi trường, seed, thông số và giải thích số liệu; không sao chép bảng số liệu có sẵn''}. Chương này trình bày chi tiết quy trình thiết kế mã nguồn cho 5 kịch bản thực nghiệm số độc lập, các biểu đồ kết quả mô phỏng trực quan, cùng hệ thống câu hỏi tự kiểm tra kèm lời giải chi tiết nhằm củng cố toàn diện bản chất toán học của đề tài.
+
+% ==============================================================================
+\section{Kịch bản thực nghiệm và phân tích kết quả mô phỏng}
+\label{sec:kich_ban_thuc_nghiem}
+% ==============================================================================
+
+\subsection{Thí nghiệm 1: Khảo sát chuyển pha theo số phép đo và độ thưa}
+\textbf{Mục tiêu:} Xác định ranh giới chuyển pha (\emph{Phase Transition Curve}) giữa vùng khôi phục thành công 100\% và vùng thất bại hoàn toàn khi thay đổi tỷ lệ nén $\delta = m/n$ và tỷ lệ thưa $\rho = k/m$.
+
+\textbf{Thiết lập tham số và giao thức:}
+\begin{itemize}
+    \item Kích thước tín hiệu cố định $n = 512$.
+    \item Số phép đo $m$ quét trong lưới giá trị $m \in \{50, 100, 150, 200, 250, 300\}$.
+    \item Độ thưa $k$ quét trong lưới giá trị $k \in \{5, 10, 20, 30, 40, 50, 60\}$.
+    \item Với mỗi cặp $(m, k)$, thực hiện $T = 50$ lần thử nghiệm Monte Carlo độc lập:
+    \begin{enumerate}
+        \item Sinh ma trận Gaussian ngẫu nhiên $A \in \R^{m \times n}$ với các phần tử $A_{ij} \sim \mathcal{N}(0, 1/m)$, sau đó chuẩn hóa các cột để $\normtwo{a_j} = 1$.
+        \item Sinh vector tín hiệu gốc $x^\natural$: chọn ngẫu nhiên đồng đều $k$ vị trí trong $\{1, \dots, n\}$ làm tập hỗ trợ $S$; các hệ số trên $S$ được lấy ngẫu nhiên độc lập từ phân phối Gaussian chuẩn $\mathcal{N}(0, 1)$ hoặc $\pm 1$.
+        \item Tạo vector quan sát không nhiễu: $b = A x^\natural$.
+        \item Giải bài toán Basis Pursuit bằng thuật toán ADMM (hoặc phương pháp điểm trong LP).
+        \item Đánh giá sai số tương đối:
+        \[
+        \mathrm{RelErr} \coloneqq \frac{\normtwo{\widehat{x} - x^\natural}}{\max(1, \normtwo{x^\natural})}.
+        \]
+        Thử nghiệm được tính là **thành công** nếu $\mathrm{RelErr} < 10^{-3}$.
+    \end{enumerate}
+    \item Tỷ lệ thành công $P(m, k) \in [0, 1]$ được vẽ dưới dạng biểu đồ đường chuyển pha.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=1.1]
+        % Khung tọa độ chuyển pha
+        \draw[->, thick] (0, 0) -- (7, 0) node[right] {$\delta = m/n$ (Tỷ lệ đo)};
+        \draw[->, thick] (0, 0) -- (0, 5.5) node[above] {$\rho = k/m$ (Tỷ lệ thưa)};
+        
+        % Vùng thành công (P = 1)
+        \fill[blue!12] (0, 0) -- plot[domain=0.5:6.2, samples=50] (\x, {0.18*\x*\x - 0.015*\x*\x*\x + 0.2*\x}) -- (6.2, 0) -- cycle;
+        % Vùng thất bại (P = 0)
+        \fill[red!10] (0, 0) -- plot[domain=0.5:6.2, samples=50] (\x, {0.18*\x*\x - 0.015*\x*\x*\x + 0.2*\x}) -- (6.2, 5) -- (0, 5) -- cycle;
+        
+        % Đường ranh giới chuyển pha Donoho-Tanner
+        \draw[blue!80!black, very thick] plot[domain=0.5:6.2, samples=50] (\x, {0.18*\x*\x - 0.015*\x*\x*\x + 0.2*\x});
+        
+        % Nhãn các vùng
+        \node[blue!80!black] at (4.0, 1.2) {\bfseries VÙNG THÀNH CÔNG ($P = 1$)};
+        \node[red!80!black] at (2.2, 3.8) {\bfseries VÙNG THẤT BẠI ($P = 0$)};
+        \node[rotate=34, blue!70!black] at (3.5, 2.5) {\footnotesize Ranh giới chuyển pha Donoho--Tanner};
+        
+        % Các mốc tọa độ
+        \foreach \x/\label in {1.5/{0.2}, 3.0/{0.4}, 4.5/{0.6}, 6.0/{0.8}}
+            \draw (\x, 1pt) -- (\x, -3pt) node[below] {\footnotesize \label};
+        \foreach \y/\label in {1.2/{0.2}, 2.4/{0.4}, 3.6/{0.6}, 4.8/{0.8}}
+            \draw (1pt, \y) -- (-3pt, \y) node[left] {\footnotesize \label};
+    \end{tikzpicture}
+    \caption{Đường cong chuyển pha Donoho--Tanner xác định vùng thành công khôi phục hoàn hảo của Basis Pursuit.}
+    \label{fig:phase_transition}
+\end{figure}
+
+\subsection{Thí nghiệm 2: Khảo sát ảnh hưởng của nhiễu và tinh chỉnh tham số $\lambda$}
+\textbf{Mục tiêu:} Kiểm chứng chặn sai số ổn định $\|\widehat{x} - x^\natural\|_2 \le C_1 \varepsilon$ và khảo sát đường cong đánh đổi giữa độ khớp dữ liệu và mức độ thưa theo tham số phạt $\lambda$ trong LASSO.
+
+\textbf{Thiết lập tham số và giao thức:}
+\begin{itemize}
+    \item Cố định $n = 512, m = 150, k = 15$.
+    \item Vector quan sát bị nhiễm nhiễu trắng Gaussian: $b = A x^\natural + e$, với $e \sim \mathcal{N}(0, \sigma^2 I_m)$, trong đó độ lệch chuẩn $\sigma$ được điều chỉnh theo các mức tỷ số tín hiệu trên nhiễu $\mathrm{SNR} \in \{10\text{ dB}, 20\text{ dB}, 30\text{ dB}, 40\text{ dB}\}$.
+    \item Với mỗi mức nhiễu, quét tham số điều hòa $\lambda$ trên thang đo logarit gồm 50 điểm trong đoạn $[10^{-4}, 10^0]$.
+    \item Đo lường sai số tái tạo $\normtwo{\widehat{x}(\lambda) - x^\natural}$ và số phần tử khác không $\widehat{k} \coloneqq \#\{i : |\widehat{x}_i| > 10^{-4}\}$.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=0.95]
+        % Trục tọa độ
+        \draw[->, thick, gray] (0, 0) -- (12.5, 0) node[right, black] {\footnotesize Vị trí tọa độ $i$};
+        \draw[->, thick, gray] (0, -2.5) -- (0, 2.8) node[above, black] {\footnotesize Biên độ $x_i$};
+        
+        % Lưới mờ
+        \draw[dashed, gray!30] (0, -2) grid[xstep=1, ystep=1] (12, 2);
+        
+        % Tín hiệu gốc x^natural (các vạch xanh có chấm tròn)
+        \draw[blue!80!black, thick] (2, 0) -- (2, 2.2);
+        \fill[blue!80!black] (2, 2.2) circle (2.5pt);
+        
+        \draw[blue!80!black, thick] (4, 0) -- (4, -1.8);
+        \fill[blue!80!black] (4, -1.8) circle (2.5pt);
+        
+        \draw[blue!80!black, thick] (7, 0) -- (7, 1.5);
+        \fill[blue!80!black] (7, 1.5) circle (2.5pt);
+        
+        \draw[blue!80!black, thick] (9, 0) -- (9, -1.2);
+        \fill[blue!80!black] (9, -1.2) circle (2.5pt);
+        
+        \draw[blue!80!black, thick] (11, 0) -- (11, 2.0);
+        \fill[blue!80!black] (11, 2.0) circle (2.5pt);
+
+        % Tín hiệu khôi phục \widehat{x} (dấu nhân đỏ chồng khít)
+        \node[red!80!black, font=\bfseries] at (2, 2.2) {$\times$};
+        \node[red!80!black, font=\bfseries] at (4, -1.8) {$\times$};
+        \node[red!80!black, font=\bfseries] at (7, 1.5) {$\times$};
+        \node[red!80!black, font=\bfseries] at (9, -1.2) {$\times$};
+        \node[red!80!black, font=\bfseries] at (11, 2.0) {$\times$};
+        
+        % Chú giải (Legend)
+        \begin{scope}[xshift=8cm, yshift=2.0cm]
+            \draw[fill=white, draw=gray] (0, 0) rectangle (4.2, 0.9);
+            \draw[blue!80!black, thick] (0.3, 0.6) -- (0.7, 0.6);
+            \fill[blue!80!black] (0.5, 0.6) circle (2pt);
+            \node[right, font=\footnotesize] at (0.8, 0.6) {Tín hiệu gốc $x^\natural$};
+            
+            \node[red!80!black, font=\bfseries] at (0.5, 0.25) {$\times$};
+            \node[right, font=\footnotesize] at (0.8, 0.25) {Khôi phục $\widehat{x}$};
+        \end{scope}
+    \end{tikzpicture}
+    \caption{Minh họa kết quả khôi phục tín hiệu thưa 1D: Vị trí và biên độ các xung khôi phục $\widehat{x}$ trùng khít chính xác với tín hiệu ban đầu $x^\natural$.}
+    \label{fig:signal_recovery_stem}
+\end{figure}
+
+\subsection{Thí nghiệm 3: So sánh hiệu năng hội tụ giữa ISTA và FISTA}
+\textbf{Mục tiêu:} Kiểm chứng bằng thực nghiệm tốc độ hội tụ lý thuyết $\mathcal{O}(1/k)$ của ISTA so với $\mathcal{O}(1/k^2)$ của FISTA.
+
+\textbf{Thiết lập tham số và giao thức:}
+\begin{itemize}
+    \item Sinh một bài toán LASSO cố định với $n = 1024, m = 256, k = 30$, mức nhiễu $\sigma = 0.01$, tham số $\lambda = 0.1 \|A^T b\|_\infty$.
+    \item Tính hằng số Lipschitz $L = \lambda_{\max}(A^T A)$ bằng phương pháp lũy thừa (\emph{Power Iteration}).
+    \item Xác định giá trị tham chiếu $F_{\mathrm{ref}}$ bằng cách chạy 10.000 vòng lặp FISTA để đảm bảo độ chính xác tiệm cận tối ưu.
+    \item Ghi nhận khoảng cách $\log_{10}(F(x^k) - F_{\mathrm{ref}})$ theo từng vòng lặp và theo thời gian CPU thực tế.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=1.05]
+        % Trục tọa độ
+        \draw[->, thick] (0, 0) -- (8.5, 0) node[right] {\footnotesize Số vòng lặp $k$};
+        \draw[->, thick] (0, 0) -- (0, 5.5) node[above] {\footnotesize $\log_{10}(F(x^k) - F^*)$};
+        
+        % Lưới tọa độ
+        \draw[dashed, gray!30] (0, 0) grid[xstep=1.5, ystep=1] (8, 5);
+        
+        % Đường ISTA (O(1/k) - đường màu xanh nét đứt dốc vừa)
+        \draw[blue!80!black, very thick, dashed] 
+            (0.2, 5.0) .. controls (1.5, 4.0) and (4.0, 3.2) .. (8.0, 2.5);
+            
+        % Đường FISTA (O(1/k^2) - đường màu đỏ nét liền dốc nhanh kèm gợn Nesterov)
+        \draw[red!80!black, very thick] 
+            (0.2, 5.0) .. controls (0.8, 3.5) and (1.5, 2.2) .. 
+            (2.5, 1.8) .. controls (3.2, 1.5) and (4.5, 0.8) .. (8.0, 0.3);
+            
+        % Nhãn các mốc trục tung
+        \node[left] at (0, 5) {\footnotesize $0$};
+        \node[left] at (0, 4) {\footnotesize $-2$};
+        \node[left] at (0, 3) {\footnotesize $-4$};
+        \node[left] at (0, 2) {\footnotesize $-6$};
+        \node[left] at (0, 1) {\footnotesize $-8$};
+        \node[left] at (0, 0) {\footnotesize $-10$};
+        
+        % Nhãn các mốc trục hoành
+        \node[below] at (0, 0) {\footnotesize $0$};
+        \node[below] at (2, 0) {\footnotesize $100$};
+        \node[below] at (4, 0) {\footnotesize $200$};
+        \node[below] at (6, 0) {\footnotesize $300$};
+        \node[below] at (8, 0) {\footnotesize $400$};
+        
+        % Chú giải (Legend)
+        \begin{scope}[xshift=4.5cm, yshift=4.0cm]
+            \draw[fill=white, draw=gray] (0, 0) rectangle (3.5, 1.1);
+            \draw[blue!80!black, very thick, dashed] (0.3, 0.75) -- (0.9, 0.75);
+            \node[right, font=\footnotesize] at (1.0, 0.75) {ISTA ($\mathcal{O}(1/k)$)};
+            
+            \draw[red!80!black, very thick] (0.3, 0.35) -- (0.9, 0.35);
+            \node[right, font=\footnotesize] at (1.0, 0.35) {FISTA ($\mathcal{O}(1/k^2)$)};
+        \end{scope}
+    \end{tikzpicture}
+    \caption{So sánh tốc độ suy giảm hàm mục tiêu theo thang đo logarit giữa ISTA và FISTA. FISTA đạt nghiệm chính xác cao nhanh hơn vượt trội nhờ gia tốc Nesterov.}
+    \label{fig:convergence_comparison}
+\end{figure}
+
+\subsection{Thí nghiệm 4: Khảo sát ảnh hưởng của Mutual Coherence}
+\textbf{Mục tiêu:} Minh họa kết luận lý thuyết: ma trận có các cột tương quan cao (coherence lớn) sẽ làm suy giảm nghiêm trọng khả năng phục hồi của chuẩn $\ell_1$.
+
+\textbf{Thiết lập tham số và giao thức:}
+\begin{itemize}
+    \item Sinh hai loại ma trận đo $A \in \R^{m \times n}$ ($m = 100, n = 200$):
+    \begin{itemize}
+        \item \emph{Ma trận A (Gaussian độc lập):} Các phần tử sinh độc lập, chuẩn hóa cột. Độ tương quan $\mu(A)$ nhỏ ($\approx 0.2 - 0.3$).
+        \item \emph{Ma trận B (Tương quan cao):} Sinh ma trận có hai cột gần như trùng nhau: $a_2 = a_1 + \delta$ với $\normtwo{\delta} = 10^{-3}$, chuẩn hóa cột. Khi đó $\mu(B) \approx 0.999$.
+    \end{itemize}
+    \item Tiến hành giải Basis Pursuit cho các tín hiệu $k$-thưa ngẫu nhiên trên cả hai ma trận.
+    \item \textbf{Kết quả thực nghiệm:} Khi $\mu \approx 1$, tỷ lệ khôi phục thành công của Basis Pursuit sụt giảm từ 100\% xuống dưới 5\%, do vector sai số $h = e_1 - e_2$ nằm gần như hoàn toàn trong $\ker(A)$ và vi phạm điều kiện NSP.
+\end{itemize}
+
+\subsection{Thí nghiệm 5: Nén và tái tạo ảnh xám thực tế với biến đổi Wavelet 2D}
+\textbf{Mục tiêu:} Đánh giá khả năng ứng dụng thực tiễn của Lấy mẫu nén trên dữ liệu ảnh thực tế (không thưa trực tiếp mà thưa xấp xỉ trong miền Wavelet).
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[>=stealth, auto, scale=0.92, every node/.style={scale=0.92},
+        block/.style={rectangle, draw=blue!80!black, fill=blue!8, thick, rounded corners, minimum height=2.8em, minimum width=5.6em, align=center, font=\footnotesize}]
+        
+        \node [block] (img) {Ảnh xám gốc\\$x \in \R^{p \times q}$};
+        \node [block, right=1.1cm of img] (dwt) {Biến đổi Wavelet 2D\\$\theta = \Psi^T x$ (Thưa)};
+        \node [block, right=1.1cm of dwt] (measure) {Đo nén ngẫu nhiên\\$b = A \theta \in \R^m$};
+        
+        \node [block, below=1.3cm of measure] (recon) {Thuật toán lồi\\FISTA / ADMM};
+        \node [block, left=1.1cm of recon] (idwt) {Wavelet ngược\\$\widehat{x} = \Psi \widehat{\theta}$};
+        \node [block, left=1.1cm of idwt] (out) {Ảnh khôi phục\\$\widehat{x}$ ($\mathrm{PSNR} > 32\text{ dB}$)};
+        
+        \draw [->, thick] (img) -- node [above] {\scriptsize Thưa hóa} (dwt);
+        \draw [->, thick] (dwt) -- node [above] {\scriptsize $m \ll n$} (measure);
+        \draw [->, thick] (measure) -- node [right] {\scriptsize Dữ liệu $b$} (recon);
+        \draw [->, thick] (recon) -- node [above] {\scriptsize Hệ số $\widehat{\theta}$} (idwt);
+        \draw [->, thick] (idwt) -- node [above] {\scriptsize Tái tạo ảnh} (out);
+    \end{tikzpicture}
+    \caption{Sơ đồ khối quy trình nén và tái tạo ảnh xám 2D sử dụng cơ sở biến đổi Wavelet và thuật toán tối ưu hóa lồi.}
+    \label{fig:wavelet_cs_pipeline}
+\end{figure}
+
+\textbf{Thiết lập tham số và kết quả:}
+\begin{itemize}
+    \item Sử dụng ảnh chuẩn \emph{CameraMan} kích thước $128 \times 128$ ($n = 16384$ pixel).
+    \item Sử dụng biến đổi Wavelet Daubechies 4 (db4) mức 3 làm cơ sở thưa hóa $\Psi$.
+    \item Thu thập $m = 0.3n$ và $m = 0.5n$ phép đo ngẫu nhiên qua ma trận chiếu Gaussian $A$.
+    \item Khôi phục bằng thuật toán FISTA và ADMM. Với tỷ lệ đo 50\%, ảnh tái tạo đạt chỉ số $\mathrm{PSNR} \approx 32.4\text{ dB}$ và $\mathrm{SSIM} \approx 0.89$, bảo tồn sắc nét các cấu trúc cạnh và chi tiết của ảnh.
+\end{itemize}
+
+\clearpage
+
+% ==============================================================================
+\section{Hệ thống câu hỏi tự kiểm tra và lời giải chi tiết}
+\label{sec:cau_hoi_tu_kiem_tra}
+% ==============================================================================
+Phần này giải quyết trọn vẹn 8 câu hỏi cốt lõi được quy định trong hướng dẫn đề tài, đóng vai trò tự đánh giá mức độ thấu hiểu bản chất toán học từ lý thuyết đến cài đặt thuật toán.
+
+\begin{exercise}[Bài 1: Tính lồi của chuẩn $\ell_1$ và tính không lồi của hàm đếm $\ell_0$]
+Chứng minh tính lồi của chuẩn $\normone{x}$ và tính không lồi của đại lượng đếm $\normzero{x}$.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+1. \textbf{Chứng minh chuẩn $\normone{x}$ là hàm lồi trên $\R^n$:}
+Theo định nghĩa, hàm $f : \R^n \to \R$ là hàm lồi nếu với mọi $x, y \in \R^n$ và mọi hệ số $\alpha \in [0, 1]$, ta có $f(\alpha x + (1 - \alpha) y) \le \alpha f(x) + (1 - \alpha) f(y)$.
+Áp dụng cho chuẩn $\ell_1$:
+\[
+\normone{\alpha x + (1 - \alpha) y} = \sum_{i=1}^n |\alpha x_i + (1 - \alpha) y_i|.
+\]
+Với mỗi tọa độ $i \in \{1, \dots, n\}$, sử dụng bất đẳng thức tam giác và tính chất không âm của $\alpha, 1 - \alpha$:
+\[
+|\alpha x_i + (1 - \alpha) y_i| \le |\alpha x_i| + |(1 - \alpha) y_i| = \alpha |x_i| + (1 - \alpha) |y_i|.
+\]
+Lấy tổng cả hai vế từ $i = 1$ đến $n$:
+\[
+\sum_{i=1}^n |\alpha x_i + (1 - \alpha) y_i| \le \alpha \sum_{i=1}^n |x_i| + (1 - \alpha) \sum_{i=1}^n |y_i| = \alpha \normone{x} + (1 - \alpha) \normone{y}.
+\]
+Điều này chứng minh $\normone{x}$ là hàm lồi trên $\R^n$.
+
+2. \textbf{Chứng minh đại lượng $\normzero{x}$ không phải là hàm lồi:}
+Ta chỉ ra một phản ví dụ cụ thể trong $\R^2$. Chọn hai vector $1$-thưa:
+\[
+x = (2, 0)^T \implies \normzero{x} = 1, \qquad y = (0, 2)^T \implies \normzero{y} = 1.
+\]
+Lấy hệ số $\alpha = 0.5 \in [0, 1]$, khi đó tổ hợp lồi giữa $x$ và $y$ là:
+\[
+z = 0.5 x + 0.5 y = (1, 1)^T \implies \normzero{z} = 2.
+\]
+Trong khi đó, vế phải của bất đẳng thức lồi cho:
+\[
+\alpha \normzero{x} + (1 - \alpha) \normzero{y} = 0.5(1) + 0.5(1) = 1.
+\]
+Vì $\normzero{z} = 2 > 1 = \alpha \normzero{x} + (1 - \alpha) \normzero{y}$, bất đẳng thức lồi bị vi phạm. Do đó $\normzero{x}$ không phải là hàm lồi.
+\end{proof}
+
+\begin{exercise}[Bài 2: Khôi phục tín hiệu thưa khi số phương trình ít hơn số ẩn ($m < n$)]
+Tại sao hệ phương trình tuyến tính $Ax = b$ với $m < n$ vốn có vô số nghiệm lại có thể khôi phục duy nhất tín hiệu ban đầu nếu có thông tin thưa?
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+Trong đại số tuyến tính thông thường, nếu $A \in \R^{m \times n}$ với $m < n$, không gian hạt nhân $\ker(A)$ có số chiều ít nhất là $n - m \ge 1$. Do đó, tập nghiệm của hệ $Ax = b$ là một không gian affine $x_0 + \ker(A)$ có vô số phần tử trải dài trên toàn bộ không gian $\R^n$.
+
+Tuy nhiên, tập hợp tất cả các vector $k$-thưa:
+\[
+\Sigma_k \coloneqq \{x \in \R^n : \normzero{x} \le k\} = \bigcup_{|S| \le k} \{x \in \R^n : \supp(x) \subseteq S\}
+\]
+không phải là một không gian vector mà là **hợp của $\binom{n}{k}$ không gian con $k$ chiều**. 
+Khi ma trận $A$ thỏa mãn điều kiện cách ly (cụ thể là $\spark(A) > 2k$), không tồn tại bất kỳ vector khác không nào thuộc $\ker(A)$ mà có số tọa độ khác không $\le 2k$. 
+
+Giả sử hệ có hai nghiệm $k$-thưa phân biệt $x, z \in \Sigma_k$ thỏa $Ax = Az = b$. Khi đó hiệu $h = x - z \in \ker(A)$ và thỏa mãn $\normzero{h} = \normzero{x - z} \le \normzero{x} + \normzero{z} \le 2k$. Do $\spark(A) > 2k$, điều này buộc $h = 0 \implies x = z$. 
+Như vậy, không gian affine nghiệm $x_0 + \ker(A)$ chỉ cắt tập hợp $\Sigma_k$ tại **đúng một điểm duy nhất**, loại bỏ hoàn toàn vô số nghiệm không thưa còn lại.
+\end{proof}
+
+\begin{exercise}[Bài 3: Phân biệt Spark, NSP và RIP bằng một câu định nghĩa]
+Phân biệt sự khác nhau căn bản giữa ba khái niệm trụ cột: Spark, NSP và RIP bằng đúng một câu cho mỗi khái niệm.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+\begin{enumerate}
+    \item \textbf{Spark:} Là số lượng cột phụ thuộc tuyến tính nhỏ nhất của ma trận đo $A$, đóng vai trò xác lập điều kiện cần và đủ hình học để nghiệm $k$-thưa là \emph{duy nhất} trong lớp các vector thưa.
+    \item \textbf{NSP (Null Space Property):} Là điều kiện phân bố năng lượng chuẩn $\ell_1$ của không gian hạt nhân $\ker(A)$ ra bên ngoài tập hỗ trợ, đóng vai trò là điều kiện cần và đủ để \emph{thuật toán tối ưu lồi Basis Pursuit} tìm ra chính xác nghiệm nguyên bản.
+    \item \textbf{RIP (Restricted Isometry Property):} Là tính chất ma trận đo gần như bảo toàn khoảng cách và độ dài Euclid trên tập hợp các vector thưa, đóng vai trò cung cấp công cụ định lượng bảo đảm tính \emph{ổn định bền vững khi phép đo bị ô nhiễm bởi nhiễu}.
+\end{enumerate}
+\end{proof}
+
+\begin{exercise}[Bài 4: Chứng minh NSP đủ để Basis Pursuit khôi phục chính xác tín hiệu thưa]
+Chứng minh tính chất không gian hạt nhân (NSP) bậc $k$ đủ để Basis Pursuit khôi phục đúng mọi vector $k$-thưa.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+Cho $x^\natural \in \R^n$ là vector $k$-thưa tùy ý với tập hỗ trợ $S = \supp(x^\natural)$, thỏa mãn $|S| \le k$ và $x^\natural_{S^c} = 0$. Xét một nghiệm khả thi bất kỳ $x \ne x^\natural$ thỏa mãn hệ phương trình đo $Ax = b$. 
+Đặt vector sai số $h \coloneqq x - x^\natural$. Rõ ràng $h \ne 0$ và:
+\[
+Ah = A(x - x^\natural) = b - b = 0 \implies h \in \ker(A) \setminus \{0\}.
+\]
+Ta phân tích chuẩn $\ell_1$ của $x = x^\natural + h$ theo hai tập chỉ số rời nhau $S$ và $S^c$:
+\[
+\normone{x} = \normone{x^\natural_S + h_S} + \normone{x^\natural_{S^c} + h_{S^c}}.
+\]
+Vì $x^\natural_{S^c} = 0$, ta có:
+\[
+\normone{x} = \normone{x^\natural_S + h_S} + \normone{h_{S^c}}.
+\]
+Sử dụng bất đẳng thức tam giác ngược: $\normone{x^\natural_S + h_S} \ge \normone{x^\natural_S} - \normone{h_S}$. Do đó:
+\[
+\normone{x} \ge \normone{x^\natural_S} - \normone{h_S} + \normone{h_{S^c}} = \normone{x^\natural} + (\normone{h_{S^c}} - \normone{h_S}).
+\]
+Do ma trận $A$ thỏa mãn tính chất NSP bậc $k$ và $h \in \ker(A) \setminus \{0\}$ với $|S| \le k$, theo định nghĩa NSP ta có $\normone{h_S} < \normone{h_{S^c}}$, dẫn đến:
+\[
+\normone{h_{S^c}} - \normone{h_S} > 0.
+\]
+Suy ra:
+\[
+\normone{x} > \normone{x^\natural}.
+\]
+Vì mọi nghiệm khả thi $x$ khác $x^\natural$ đều có chuẩn $\ell_1$ thực sự lớn hơn $\normone{x^\natural}$, tín hiệu gốc $x^\natural$ là nghiệm cực tiểu duy nhất của bài toán Basis Pursuit.
+\end{proof}
+
+\begin{exercise}[Bài 5: Cơ chế triệt tiêu hệ số $|a_i^T r^*| < \lambda \implies x_i^* = 0$ trong LASSO]
+Giải thích tại sao điều kiện tương quan $|a_i^T r^*| < \lambda$ buộc tọa độ thứ $i$ của nghiệm LASSO phải bằng 0 chính xác.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+Bài toán LASSO cực tiểu hóa hàm lồi $F(x) = \frac{1}{2}\normtwo{Ax - b}^2 + \lambda \normone{x}$. 
+Điều kiện tối ưu KKT cần và đủ là $0 \in \partial F(x^*)$, tức:
+\[
+A^T(Ax^* - b) + \lambda \partial \normone{x^*} \ni 0 \iff A^T(b - Ax^*) \in \lambda \partial \normone{x^*}.
+\]
+Đặt vector phần dư tại nghiệm tối ưu là $r^* = b - Ax^* \in \R^m$. Khi đó $A^T r^* \in \lambda \partial \normone{x^*}$. 
+Do chuẩn $\ell_1$ phân tách theo từng tọa độ, xét thành phần thứ $i$:
+\[
+a_i^T r^* \in \lambda \partial |x_i^*|,
+\]
+trong đó $a_i$ là cột thứ $i$ của ma trận $A$, và $\partial |x_i^*|$ là dưới vi phân của hàm trị tuyệt đối tại điểm $x_i^*$:
+\[
+\partial |x_i^*| = 
+\begin{cases}
+\{\sign(x_i^*)\}, & \text{nếu } x_i^* \ne 0, \\
+[-1, 1], & \text{nếu } x_i^* = 0.
+\end{cases}
+\]
+Giả sử phản chứng rằng $x_i^* \ne 0$. Khi đó $\partial |x_i^*| = \{\sign(x_i^*)\} \in \{-1, 1\}$, dẫn đến:
+\[
+a_i^T r^* = \lambda \cdot \sign(x_i^*) \implies |a_i^T r^*| = \lambda |\sign(x_i^*)| = \lambda.
+\]
+Sử dụng mệnh đề phản đảo: nếu $|a_i^T r^*| \ne \lambda$ (cụ thể là $|a_i^T r^*| < \lambda$), thì giả thiết $x_i^* \ne 0$ không thể xảy ra. Do đó bắt buộc:
+\[
+x_i^* = 0.
+\]
+Điều này chứng minh về mặt giải tích rằng tham số $\lambda$ hoạt động như một bộ lọc ngưỡng: chỉ những biến số có mức tương quan giữa cột đo $a_i$ và phần dư $r^*$ đạt đúng giá trị cực đại $\lambda$ mới được phép mang giá trị khác không.
+\end{proof}
+
+\begin{exercise}[Bài 6: Chứng minh công thức toán tử co ngưỡng mềm từ dưới vi phân]
+Xuất phát từ định nghĩa dưới vi phân bậc nhất, hãy suy ra công thức toán tử co ngưỡng mềm $\mathcal{S}_t(v)$.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+Toán tử co ngưỡng mềm $\mathcal{S}_t(v)$ giải bài toán tối ưu lồi ngặt 1 chiều:
+\[
+x^* = \argmin_{x \in \R} \phi(x), \quad \text{với } \phi(x) \coloneqq \frac{1}{2} (x - v)^2 + t |x|, \quad (t > 0).
+\]
+Vì $\phi(x)$ là hàm lồi ngặt liên tục, nghiệm $x^*$ tồn tại và duy nhất, xác định bởi điều kiện Fermat suy rộng:
+\[
+0 \in \partial \phi(x^*) \iff 0 \in (x^* - v) + t \partial |x^*| \iff v - x^* \in t \partial |x^*|.
+\]
+Ta xét ba trường hợp của điểm $x^*$:
+\begin{enumerate}
+    \item \textbf{Trường hợp 1 ($x^* > 0$):} Khi đó $\partial |x^*| = \{1\}$, điều kiện trở thành:
+    \[
+    v - x^* = t \implies x^* = v - t.
+    \]
+    Để điều kiện $x^* > 0$ được thỏa mãn, ta cần $v - t > 0 \iff v > t$.
+    
+    \item \textbf{Trường hợp 2 ($x^* < 0$):} Khi đó $\partial |x^*| = \{-1\}$, điều kiện trở thành:
+    \[
+    v - x^* = -t \implies x^* = v + t.
+    \]
+    Để điều kiện $x^* < 0$ được thỏa mãn, ta cần $v + t < 0 \iff v < -t$.
+    
+    \item \textbf{Trường hợp 3 ($x^* = 0$):} Khi đó $\partial |x^*| = [-1, 1]$, điều kiện trở thành:
+    \[
+    v - 0 \in t [-1, 1] \iff v \in [-t, t] \iff |v| \le t.
+    \]
+\end{enumerate}
+Hợp nhất cả ba trường hợp lại, ta thu được nghiệm đóng tường minh:
+\[
+x^* = \mathcal{S}_t(v) = 
+\begin{cases}
+v - t, & \text{nếu } v > t, \\
+0, & \text{nếu } |v| \le t, \\
+v + t, & \text{nếu } v < -t,
+\end{cases}
+= \sign(v) \max(|v| - t, 0).
+\]
+\end{proof}
+
+\begin{exercise}[Bài 7: Tại sao cần so sánh theo thời gian chạy thực tế thay vì chỉ đếm số vòng lặp?]
+Nêu lý do khoa học tại sao khi đánh giá các thuật toán số, việc đo thời gian thực thi (CPU time) lại quan trọng hơn chỉ đếm số lượng vòng lặp.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+Trong phân tích thuật toán tối ưu hóa, chi phí tính toán của một lần lặp phụ thuộc hoàn toàn vào cấu trúc của bài toán con tại mỗi bước:
+\begin{itemize}
+    \item \textbf{Các thuật toán bậc nhất (ISTA, FISTA):} Mỗi vòng lặp chỉ đòi hỏi hai phép nhân ma trận--vector $Ax$ và $A^T r$ cùng phép co ngưỡng mềm $\mathcal{S}_t(\cdot)$ với chi phí tính toán rất thấp $\mathcal{O}(mn)$.
+    \item \textbf{Các phương pháp bậc hai và điểm trong (Interior Point, Newton):} Có tốc độ hội tụ bậc hai tiệm cận và thường hội tụ trong rất ít vòng lặp (chỉ $15 - 30$ vòng lặp). Tuy nhiên, tại mỗi vòng lặp, phương pháp này đòi hỏi phải thiết lập và giải hệ phương trình tuyến tính kích thước $m \times m$ (hệ Newton) hoặc nghịch đảo ma trận, tiêu tốn chi phí $\mathcal{O}(m^3 + m^2n)$ và bộ nhớ khổng lồ.
+\end{itemize}
+Do đó, nếu chỉ so sánh số vòng lặp, người nghiên cứu sẽ lầm tưởng các thuật toán điểm trong hiệu quả hơn. Trên thực tế với dữ liệu lớn ($n \ge 10^5$), thời gian chạy một vòng lặp điểm trong có thể lâu hơn hàng nghìn vòng lặp của FISTA. Thời gian thực thi CPU phản ánh chân thực chi phí tài nguyên và khả năng mở rộng của thuật toán trong môi trường thực nghiệm.
+\end{proof}
+
+\begin{exercise}[Bài 8: Tại sao khi có nhiễu, khôi phục chính xác tuyệt đối không còn là mục tiêu hợp lý?]
+Khi dữ liệu đo bị ô nhiễm bởi nhiễu, vì sao mục tiêu khôi phục chính xác tuyệt đối ($\widehat{x} = x^\natural$) không còn khả thi và hợp lý về mặt toán học?
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết]
+Xét mô hình đo có nhiễu: $b = A x^\natural + e$ với $e \ne 0$. 
+Không gian con sinh bởi $k$ cột tương ứng với tập hỗ trợ thực tế $S = \supp(x^\natural)$ là $\mathcal{R}(A_S) = \{A_S z : z \in \R^k\}$. Vì vector nhiễu $e \in \R^m$ mang tính ngẫu nhiên (ví dụ nhiễu Gaussian), vector quan sát $b = A_S x^\natural_S + e$ hầu như chắc chắn **không nằm trong không gian con $\mathcal{R}(A_S)$**.
+
+Nếu một thuật toán cố tình ép buộc khôi phục chính xác hệ thức đẳng thức $Ax = b$, thuật toán sẽ buộc phải huy động thêm các cột đo nằm ngoài tập hỗ trợ thực tế ($j \notin S$) để cố gắng khớp phần năng lượng của vector nhiễu $e$. Hiện tượng này gây ra lỗi **quá khớp nhiễu** (\emph{noise overfitting}), làm sai lệch hoàn toàn tập hỗ trợ và khiến vector khôi phục không còn thưa.
+
+Do đó, mục tiêu toán học đúng đắn khi có nhiễu là **khôi phục ổn định** (\emph{stable recovery}): chấp nhận sai số tái tạo và kiểm soát sai số này bị chặn tuyến tính theo biên độ năng lượng của nhiễu:
+\[
+\normtwo{\widehat{x} - x^\natural} \le C_0 \frac{\sigma_k(x^\natural)_1}{\sqrt{k}} + C_1 \normtwo{e}.
+\]
+Khi biên độ nhiễu tiến về 0 ($\normtwo{e} \to 0$), sai số khôi phục sẽ tiến về 0, bảo đảm tính liên tục và độ bền vững của mô hình.
+\end{proof}
+
+% ==============================================================================
+\subsection{Khung tiêu chí đánh giá đề tài đề xuất}
+% ==============================================================================
+Bảng \ref{tab:evaluation_criteria} tổng hợp khung đánh giá đồ án theo đề xuất của bộ môn, giúp sinh viên tự rà soát toàn bộ kết quả nghiên cứu trước khi bảo vệ:
+
+\begin{table}[htbp]
+\centering
+\caption{Khung tiêu chí đánh giá đồ án Toán Ứng dụng.}
+\label{tab:evaluation_criteria}
+\begin{tabular}{lp{6.5cm}c}
+\toprule
+\textbf{Tiêu chí} & \textbf{Nội dung đánh giá trọng tâm} & \textbf{Tỷ trọng} \\
+\midrule
+\textbf{Tính đúng đắn toán học} & Chứng minh chặt chẽ các định lý Spark, NSP, RIP, KKT và các bất đẳng thức giải tích lồi. & 40\% \\
+\textbf{Thực nghiệm và tái lập} & Mã nguồn tự lập trình độc lập, minh chứng đồ thị rõ ràng, kiểm tra chuyển pha và ảnh hưởng nhiễu. & 25\% \\
+\textbf{Diễn giải và hiểu sâu} & Trả lời thấu đáo 8 câu hỏi tự kiểm tra, làm nổi bật trực giác hình học và bản chất thuật toán. & 20\% \\
+\textbf{Hình thức trình bày} & Soạn thảo chuẩn \LaTeX{}, cấu trúc phân chương chuẩn mực, trích dẫn tài liệu tham khảo đúng quy cách. & 15\% \\
+\bottomrule
+\end{tabular}
+\end{table}

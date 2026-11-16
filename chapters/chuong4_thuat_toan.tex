@@ -1,0 +1,269 @@
+% ==============================================================================
+% CHƯƠNG 4: THUẬT TOÁN GIẢI SỐ VÀ PHÂN TÍCH HỘI TỤ
+% ==============================================================================
+\chapter{Thuật toán giải số và phân tích hội tụ}
+\label{chap:thuat_toan}
+
+Trong chương này, sinh viên ngành toán sẽ phân tích bản chất giải tích, xây dựng các bước lặp và chứng minh chặt chẽ tốc độ hội tụ của bốn thuật toán tối ưu tiêu biểu: ISTA, FISTA, GPSR và ADMM.
+
+\section{Thuật toán co ngưỡng lặp (ISTA) cho bài toán LASSO}
+Xét bài toán LASSO ở dạng tổng của hai hàm lồi:
+\begin{equation}
+    \min_{x \in \R^n} F(x) \coloneqq f(x) + g(x),
+\end{equation}
+trong đó:
+\begin{itemize}
+    \item $f(x) \coloneqq \frac{1}{2} \normtwo{Ax - b}^2$ là hàm khả vi lồi, biểu diễn độ khớp dữ liệu đo lường.
+    \item $g(x) \coloneqq \lambda \normone{x}$ ($\lambda > 0$) là hàm lồi không khả vi, thúc đẩy nghiệm thưa.
+\end{itemize}
+
+Gradient của hàm $f(x)$ là $\nabla f(x) = A^T(Ax - b)$. Gradient này thỏa mãn điều kiện liên tục Lipschitz:
+\begin{equation}
+    \normtwo{\nabla f(x) - \nabla f(y)} \le L \normtwo{x - y}, \quad \forall x, y \in \R^n,
+\end{equation}
+với hằng số Lipschitz tốt nhất là giá trị riêng cực đại của $A^T A$:
+\begin{equation}
+    L \coloneqq \normtwo{A}^2 = \lambda_{\max}(A^T A).
+\end{equation}
+
+\begin{lemma}[Bổ đề giảm - Descent Lemma]
+Do $\nabla f$ là $L$-Lipschitz liên tục, với mọi $x, z \in \R^n$, ta có chặn trên bậc hai:
+\begin{equation}
+    f(z) \le f(x) + \nabla f(x)^T(z - x) + \frac{L}{2} \normtwo{z - x}^2.
+    \label{eq:descent_lemma}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Theo công thức tích phân dọc đoạn thẳng nối $x$ và $z$:
+\[
+f(z) - f(x) = \int_0^1 \nabla f(x + t(z - x))^T(z - x) \, dt.
+\]
+Cộng và trừ $\nabla f(x)^T(z - x)$ bên trong tích phân:
+\[
+f(z) - f(x) - \nabla f(x)^T(z - x) = \int_0^1 (\nabla f(x + t(z - x)) - \nabla f(x))^T(z - x) \, dt.
+\]
+Sử dụng bất đẳng thức Cauchy--Schwarz và tính $L$-Lipschitz của $\nabla f$:
+\[
+|f(z) - f(x) - \nabla f(x)^T(z - x)| \le \int_0^1 L t \normtwo{z - x}^2 \, dt = \frac{L}{2} \normtwo{z - x}^2.
+\]
+Bổ đề được chứng minh.
+\end{proof}
+
+\subsection{Xây dựng bước lặp của ISTA}
+Tại mỗi bước lặp $k$, thay vì cực tiểu hóa trực tiếp hàm phức tạp $F(z)$, ISTA thay thế hàm trơn $f(z)$ bằng chặn trên bậc hai quanh điểm hiện tại $x^k$, đồng thời giữ nguyên hàm phạt $g(z)$:
+\begin{equation}
+    x^{k+1} = \argmin_{z \in \R^n} \left\{ f(x^k) + \nabla f(x^k)^T(z - x^k) + \frac{L}{2} \normtwo{z - x^k}^2 + \lambda \normone{z} \right\}.
+\end{equation}
+Thêm bớt số hạng không phụ thuộc vào $z$, biểu thức trên tương đương với:
+\begin{align}
+    x^{k+1} &= \argmin_{z \in \R^n} \left\{ \frac{L}{2} \left\| z - \left( x^k - \frac{1}{L} \nabla f(x^k) \right) \right\|_2^2 + \lambda \normone{z} \right\} \notag \\
+            &= \argmin_{z \in \R^n} \left\{ \frac{1}{2} \left\| z - \left( x^k - \frac{1}{L} A^T(Ax^k - b) \right) \right\|_2^2 + \frac{\lambda}{L} \normone{z} \right\}.
+\end{align}
+Theo kết quả về toán tử co ngưỡng mềm đã chứng minh ở Chương 2, bài toán trên có nghiệm đóng tường minh phân tách theo từng tọa độ:
+\begin{equation}
+    x^{k+1} = \mathcal{S}_{\lambda/L} \left( x^k - \frac{1}{L} A^T(Ax^k - b) \right),
+    \label{eq:ista_iteration}
+\end{equation}
+với $\mathcal{S}_t(v)_i = \sign(v_i) \max(|v_i| - t, 0)$.
+
+\subsection{Chứng minh chi tiết bất đẳng thức ba điểm và tốc độ hội tụ $\mathcal{O}(1/k)$}
+\begin{theorem}[Bất đẳng thức ba điểm và Tốc độ hội tụ của ISTA]
+Cho $x^*$ là một nghiệm tối ưu bất kỳ của LASSO. Khi đó, dãy lặp $\{x^k\}$ của ISTA với độ dài bước $1/L$ thỏa mãn:
+\begin{equation}
+    F(x^{k+1}) - F(u) \le \frac{L}{2} \left( \normtwo{x^k - u}^2 - \normtwo{x^{k+1} - u}^2 \right), \quad \forall u \in \R^n,
+    \label{eq:three_point_inequality}
+\end{equation}
+và từ đó suy ra tốc độ hội tụ giá trị hàm:
+\begin{equation}
+    F(x^k) - F(x^*) \le \frac{L \normtwo{x^0 - x^*}^2}{2k}, \quad \forall k \ge 1.
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Kiểm tra từng bước chứng minh theo đúng yêu cầu đồ án]
+\textbf{Bước 1: Điều kiện tối ưu của bài toán con.}
+Điểm $x^{k+1}$ cực tiểu hóa hàm lồi khả vi suy rộng:
+\[
+Q(z) \coloneqq f(x^k) + \nabla f(x^k)^T(z - x^k) + \frac{L}{2} \normtwo{z - x^k}^2 + g(z).
+\]
+Do đó điều kiện tối ưu bậc nhất $0 \in \partial Q(x^{k+1})$ cho:
+\[
+0 \in \nabla f(x^k) + L(x^{k+1} - x^k) + \partial g(x^{k+1}) \implies L(x^k - x^{k+1}) - \nabla f(x^k) \in \partial g(x^{k+1}).
+\]
+Theo định nghĩa dưới vi phân của hàm lồi $g$, với mọi điểm $u \in \R^n$:
+\begin{equation}
+    g(u) \ge g(x^{k+1}) + \langle L(x^k - x^{k+1}) - \nabla f(x^k), \, u - x^{k+1} \rangle.
+    \label{eq:subgrad_g_step}
+\end{equation}
+
+\textbf{Bước 2: Áp dụng Bổ đề giảm cho $f(x^{k+1})$.}
+Theo Bổ đề giảm \eqref{eq:descent_lemma} tại $z = x^{k+1}$:
+\begin{equation}
+    f(x^{k+1}) \le f(x^k) + \nabla f(x^k)^T(x^{k+1} - x^k) + \frac{L}{2} \normtwo{x^{k+1} - x^k}^2.
+    \label{eq:descent_f_step}
+\end{equation}
+Đồng thời, do tính lồi của hàm $f$, với mọi $u \in \R^n$:
+\begin{equation}
+    f(u) \ge f(x^k) + \nabla f(x^k)^T(u - x^k) \iff f(x^k) \le f(u) - \nabla f(x^k)^T(u - x^k).
+    \label{eq:convexity_f_step}
+\end{equation}
+Thay \eqref{eq:convexity_f_step} vào \eqref{eq:descent_f_step}:
+\begin{equation}
+    f(x^{k+1}) \le f(u) + \nabla f(x^k)^T(x^{k+1} - u) + \frac{L}{2} \normtwo{x^{k+1} - x^k}^2.
+    \label{eq:f_bound_step}
+\end{equation}
+
+\textbf{Bước 3: Cộng hai bất đẳng thức và biến đổi đại số.}
+Cộng \eqref{eq:f_bound_step} với \eqref{eq:subgrad_g_step}, đại lượng $\nabla f(x^k)^T(x^{k+1} - u)$ triệt tiêu hoàn toàn:
+\begin{align*}
+    F(x^{k+1}) &= f(x^{k+1}) + g(x^{k+1}) \\
+    &\le f(u) + g(u) + \frac{L}{2} \normtwo{x^{k+1} - x^k}^2 + L \langle x^k - x^{k+1}, \, x^{k+1} - u \rangle \\
+    &= F(u) + \frac{L}{2} \left[ \normtwo{x^{k+1} - x^k}^2 + 2 \langle x^k - x^{k+1}, \, x^{k+1} - u \rangle \right].
+\end{align*}
+Sử dụng đồng nhất thức đại số cơ bản: với ba điểm bất kỳ, $\|a - b\|^2 + 2\langle a - b, b - c \rangle = \|a - c\|^2 - \|b - c\|^2$. Đặt $a = x^k, b = x^{k+1}, c = u$:
+\[
+\normtwo{x^k - x^{k+1}}^2 + 2 \langle x^k - x^{k+1}, \, x^{k+1} - u \rangle = \normtwo{x^k - u}^2 - \normtwo{x^{k+1} - u}^2.
+\]
+Thay vào trên, ta thu được chính xác bất đẳng thức ba điểm:
+\[
+F(x^{k+1}) - F(u) \le \frac{L}{2} \left( \normtwo{x^k - u}^2 - \normtwo{x^{k+1} - u}^2 \right).
+\]
+
+\textbf{Bước 4: Suy ra tốc độ hội tụ $\mathcal{O}(1/k)$.}
+Chọn $u = x^*$ (nghiệm tối ưu), ta có:
+\begin{equation}
+    F(x^{i+1}) - F(x^*) \le \frac{L}{2} \left( \normtwo{x^i - x^*}^2 - \normtwo{x^{i+1} - x^*}^2 \right).
+\end{equation}
+Lấy tổng hai vế từ $i = 0$ đến $k - 1$. Vế phải tạo thành chuỗi vi sai thu gọn (\emph{telescoping sum}):
+\begin{equation}
+    \sum_{i=0}^{k-1} (F(x^{i+1}) - F(x^*)) \le \frac{L}{2} \left( \normtwo{x^0 - x^*}^2 - \normtwo{x^k - x^*}^2 \right) \le \frac{L}{2} \normtwo{x^0 - x^*}^2.
+\end{equation}
+Mặt khác, từ bất đẳng thức ba điểm với $u = x^i$, ta có $F(x^{i+1}) \le F(x^i)$, tức dãy giá trị hàm $\{F(x^i)\}$ là dãy đơn điệu không tăng. Do đó:
+\[
+k (F(x^k) - F(x^*)) \le \sum_{i=0}^{k-1} (F(x^{i+1}) - F(x^*)) \le \frac{L}{2} \normtwo{x^0 - x^*}^2.
+\]
+Chia hai vế cho $k > 0$, ta thu được chặn tốc độ hội tụ:
+\[
+F(x^k) - F(x^*) \le \frac{L \normtwo{x^0 - x^*}^2}{2k}.
+\]
+Chứng minh hoàn tất.
+\end{proof}
+
+\section{Thuật toán FISTA và phương pháp GPSR}
+\subsection{Thuật toán FISTA (Fast ISTA)}
+Mặc dù ISTA đơn giản, tốc độ hội tụ $\mathcal{O}(1/k)$ khá chậm khi xử lý dữ liệu lớn. Beck và Teboulle (2009) đã áp dụng kỹ thuật gia tốc động lượng của Nesterov để đề xuất FISTA.
+
+\textbf{Quy trình lặp của FISTA:}
+Khởi tạo $x^0 = y^0 \in \R^n$ và hệ số động lượng $t_0 = 1$. Tại bước $k \ge 0$:
+\begin{align}
+    x^{k+1} &= \mathcal{S}_{\lambda/L} \left( y^k - \frac{1}{L} A^T(A y^k - b) \right), \label{eq:fista_step1} \\[0.2cm]
+    t_{k+1} &= \frac{1 + \sqrt{1 + 4 t_k^2}}{2}, \label{eq:fista_step2} \\[0.2cm]
+    y^{k+1} &= x^{k+1} + \left( \frac{t_k - 1}{t_{k+1}} \right) (x^{k+1} - x^k). \label{eq:fista_step3}
+\end{align}
+
+\begin{theorem}[Tốc độ hội tụ của FISTA]
+Dãy nghiệm $\{x^k\}$ sinh bởi FISTA thỏa mãn:
+\begin{equation}
+    F(x^k) - F(x^*) \le \frac{2 L \normtwo{x^0 - x^*}^2}{(k + 1)^2}, \quad \forall k \ge 1.
+\end{equation}
+\end{theorem}
+
+\begin{remark}[Lưu ý lý thuyết của giảng viên]
+Chặn trên của FISTA là tốc độ hội tụ của \textbf{giá trị hàm mục tiêu} ($F(x^k) \to F^*$). Cần lưu ý rằng kết quả này không tự động suy ra bản thân dãy vector nghiệm $\{x^k\}$ hội tụ trong mọi biến thể ngoại suy nếu không có thêm các giả thiết lồi ngặt hoặc kỹ thuật restart.
+\end{remark}
+
+\subsection{Phương pháp GPSR (Gradient Projection for Sparse Reconstruction)}
+Phương pháp GPSR của Figueiredo, Nowak và Wright (2007) tiếp cận bài toán LASSO theo hướng tối ưu hóa ràng buộc biên. Bằng cách phân tích vector biến $x = u - v$ với $u = \max(x, 0) \ge 0$ và $v = \max(-x, 0) \ge 0$, chuẩn $\normone{x} = \mathbf{1}^T(u + v)$. Bài toán LASSO trở thành:
+\begin{equation}
+    \min_{u \ge 0, v \ge 0} \phi(u, v) \coloneqq \frac{1}{2} \normtwo{A(u - v) - b}^2 + \lambda \mathbf{1}^T(u + v).
+\end{equation}
+Đây là bài toán quy hoạch toàn phương có ràng buộc không âm trên miền $z = (u^T, v^T)^T \in \R^{2n}_+$. GPSR áp dụng thuật toán chiếu gradient:
+\begin{equation}
+    z^{k+1} = \mathcal{P}_{\R^{2n}_+} \left( z^k - \alpha_k \nabla \phi(z^k) \right),
+\end{equation}
+trong đó phép chiếu $\mathcal{P}_{\R^{2n}_+}$ chỉ đơn giản là phép gán $\max(\cdot, 0)$ theo từng tọa độ, và độ dài bước $\alpha_k$ được tính toán linh hoạt theo phương pháp Barzilai--Borwein (BB steps) kết hợp tìm kiếm đường thẳng không đơn điệu.
+
+\section{Thuật toán ADMM cho Basis Pursuit}
+Để giải bài toán Basis Pursuit không nhiễu $\min \normone{x}$ thỏa $Ax = b$, phương pháp nhân tử Lagrange tăng cường hướng luân phiên (\emph{Alternating Direction Method of Multipliers} - ADMM) là sự lựa chọn tối ưu.
+
+Ta biến đổi bài toán bằng cách tách biến $x = z$ và gọi tập khả thi affine là $C \coloneqq \{x \in \R^n : Ax = b\}$:
+\begin{equation}
+    \min_{x, z \in \R^n} \iota_C(x) + \normone{z} \quad \text{s.t.} \quad x - z = 0,
+\end{equation}
+với $\iota_C(x) = 0$ nếu $Ax = b$ và $+\infty$ nếu ngược lại.
+
+Hàm Lagrangian tăng cường dạng chuẩn hóa (\emph{scaled form}) với tham số phạt $\rho > 0$:
+\begin{equation}
+    \mathcal{L}_\rho(x, z, u) = \iota_C(x) + \normone{z} + \frac{\rho}{2} \normtwo{x - z + u}^2 - \frac{\rho}{2} \normtwo{u}^2,
+\end{equation}
+trong đó $u \in \R^n$ là vector nhân tử Lagrange chuẩn hóa.
+
+Quy trình cập nhật luân phiên của ADMM:
+\begin{align}
+    x^{k+1} &= \argmin_x \left\{ \iota_C(x) + \frac{\rho}{2} \normtwo{x - z^k + u^k}^2 \right\} = \mathcal{P}_C(z^k - u^k), \label{eq:admm_x_update} \\[0.2cm]
+    z^{k+1} &= \argmin_z \left\{ \normone{z} + \frac{\rho}{2} \normtwo{x^{k+1} - z + u^k}^2 \right\} = \mathcal{S}_{1/\rho}(x^{k+1} + u^k), \label{eq:admm_z_update} \\[0.2cm]
+    u^{k+1} &= u^k + x^{k+1} - z^{k+1}. \label{eq:admm_u_update}
+\end{align}
+
+\begin{theorem}[Công thức phép chiếu trực giao lên tập nghiệm affine]
+Nếu ma trận $A \in \R^{m \times n}$ có các hàng độc lập tuyến tính (hạng hàng đầy đủ $\rank(A) = m$), phép chiếu trực giao của một điểm $v \in \R^n$ lên tập $C = \{x \in \R^n : Ax = b\}$ được tính bởi:
+\begin{equation}
+    \mathcal{P}_C(v) = v - A^T (A A^T)^{-1} (Av - b).
+    \label{eq:affine_projection_formula}
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Chứng minh từ điều kiện cực trị Lagrange theo yêu cầu của thầy]
+Phép chiếu $\mathcal{P}_C(v)$ là nghiệm của bài toán tối ưu lồi có ràng buộc đẳng thức:
+\[
+\min_{x \in \R^n} \frac{1}{2} \normtwo{x - v}^2 \quad \text{s.t.} \quad Ax = b.
+\]
+Đặt hàm Lagrange với vector nhân tử $\nu \in \R^m$:
+\[
+L(x, \nu) = \frac{1}{2} \normtwo{x - v}^2 + \nu^T (Ax - b).
+\]
+Lấy đạo hàm riêng theo $x$ và cho triệt tiêu:
+\[
+\nabla_x L(x, \nu) = x - v + A^T \nu = 0 \implies x = v - A^T \nu.
+\]
+Nhân cả hai vế với ma trận $A$ từ bên trái:
+\[
+Ax = Av - A A^T \nu.
+\]
+Thay ràng buộc khả thi $Ax = b$ vào vế trái:
+\[
+b = Av - A A^T \nu \implies A A^T \nu = Av - b.
+\]
+Vì ma trận $A$ có hạng hàng đầy đủ $m$, ma trận đối xứng Gram $A A^T \in \R^{m \times m}$ khả nghịch. Ta giải được nghiệm duy nhất của nhân tử Lagrange:
+\[
+\nu^* = (A A^T)^{-1} (Av - b).
+\]
+Thay $\nu^*$ ngược trở lại biểu thức của $x$, ta thu được công thức phép chiếu:
+\[
+x^* = \mathcal{P}_C(v) = v - A^T (A A^T)^{-1} (Av - b).
+\]
+Chứng minh hoàn thành.
+\end{proof}
+
+\begin{remark}[Tối ưu hóa tính toán trong thực nghiệm số]
+Ma trận $A A^T \in \R^{m \times m}$ và phép phân tích Cholesky của nó chỉ cần thực hiện **một lần duy nhất** trước khi bước vào vòng lặp ADMM. Trong mỗi vòng lặp, việc tính $x^{k+1}$ chỉ tốn chi phí giải hệ phương trình ma trận tam giác với độ phức tạp $\mathcal{O}(m^2 + mn)$, giúp ADMM chạy cực kỳ nhanh và ổn định.
+
+Phần dư nguyên thủy $r^k \coloneqq x^k - z^k$ (đo mức vi phạm ràng buộc $x = z$) và phần dư đối ngẫu $s^k \coloneqq \rho(z^k - z^{k-1})$ được sử dụng làm tiêu chuẩn dừng tự nhiên: $\normtwo{r^k} \le \epsilon^{\mathrm{pri}}$ và $\normtwo{s^k} \le \epsilon^{\mathrm{dual}}$.
+\end{remark}
+
+\section{So sánh định tính và lựa chọn thuật toán}
+\begin{table}[htbp]
+\centering
+\caption{Bảng so sánh định tính các thuật toán phục hồi tín hiệu thưa.}
+\label{tab:algorithm_comparison}
+\begin{tabular}{lp{3.5cm}p{4cm}p{4cm}}
+\toprule
+\textbf{Thuật toán} & \textbf{Mô hình giải} & \textbf{Tốc độ lý thuyết} & \textbf{Ưu/Nhược điểm thực tế} \\
+\midrule
+ISTA & LASSO & $\mathcal{O}(1/k)$ & Rất đơn giản, bộ nhớ thấp; tốc độ hội tụ chậm. \\
+FISTA & LASSO & $\mathcal{O}(1/k^2)$ (tối ưu) & Rất nhanh; có dao động nhỏ quanh nghiệm. \\
+GPSR & LASSO ràng buộc & Tuyến tính cục bộ & Tận dụng cấu trúc biến; bước Barzilai--Borwein hiệu quả. \\
+ADMM & Basis Pursuit (chính xác) & Siêu tuyến tính thực nghiệm & Giải chính xác đẳng thức $Ax = b$; cần phân tích $(AA^T)^{-1}$. \\
+\bottomrule
+\end{tabular}
+\end{table}

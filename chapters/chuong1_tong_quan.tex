@@ -1,0 +1,169 @@
+% ==============================================================================
+% CHƯƠNG 1: TỔNG QUAN VÀ CƠ SỞ VỀ TÍN HIỆU THƯA
+% ==============================================================================
+\chapter{Tổng quan và cơ sở về tín hiệu thưa}
+\label{chap:tong_quan}
+
+\section{Đặt vấn đề và động lực nghiên cứu}
+Trong thời đại bùng nổ dữ liệu số, việc thu thập, lưu trữ và truyền tải thông tin đối mặt với những thách thức vật lý to lớn. Theo định lý lấy mẫu cổ điển Shannon--Nyquist, để tái tạo một tín hiệu liên tục có dải tần giới hạn bởi tần số cực đại $f_{\max}$, tần số lấy mẫu tối thiểu phải thỏa mãn điều kiện $f_s \ge 2 f_{\max}$. Tuy nhiên, trong nhiều ứng dụng hiện đại:
+\begin{itemize}
+    \item \textbf{Chụp ảnh cộng hưởng từ (MRI):} Việc lấy mẫu toàn phần đòi hỏi bệnh nhân phải nằm yên trong máy quét hàng giờ, gây khó chịu và dễ tạo ra hiện tượng nhòe ảnh do cử động sinh học. Giảm số lượng phép đo là yêu cầu sống còn để rút ngắn thời gian quét.
+    \item \textbf{Mạng cảm biến không dây (Wireless Sensor Networks):} Các nút cảm biến hoạt động bằng pin năng lượng hữu hạn trong điều kiện khắc nghiệt. Việc truyền tải dữ liệu tiêu hao tới 80\% năng lượng của nút; do đó, nén dữ liệu ngay tại khâu đo lường giúp kéo dài tuổi thọ mạng.
+    \item \textbf{Hệ thống viễn thông và radar mảng pha:} Băng thông truyền thông và tốc độ chuyển đổi tương tự--số (ADC) luôn bị giới hạn bởi phần cứng vật lý.
+\end{itemize}
+
+Bài toán cốt lõi đặt ra là: \emph{Từ một số lượng rất ít các phép đo gián tiếp và có thể bị nhiễu, liệu ta có thể tái tạo chính xác tín hiệu ban đầu?}
+
+Mô hình toán học dẫn đến hệ phương trình đại số tuyến tính:
+\begin{equation}
+    Ax = b,
+    \label{eq:underdetermined_system}
+\end{equation}
+trong đó:
+\begin{itemize}
+    \item $x \in \R^n$ là vector biểu diễn tín hiệu nguyên bản cần tìm.
+    \item $A \in \R^{m \times n}$ là ma trận đo lường tuyến tính với $m < n$ (thậm chí $m \ll n$).
+    \item $b \in \R^m$ là vector quan sát (kết quả phép đo).
+\end{itemize}
+
+Về mặt đại số tuyến tính thuần túy, ma trận $A$ có số cột nhiều hơn số hàng ($m < n$), do đó không gian hạt nhân $\ker(A) \coloneqq \{h \in \R^n : Ah = 0\}$ có số chiều ít nhất là $n - m > 0$. Nếu hệ có một nghiệm $x_0$, thì toàn bộ không gian affine $x_0 + \ker(A)$ gồm vô số phần tử đều là nghiệm của \eqref{eq:underdetermined_system}. 
+
+Tuy nhiên, nếu ta biết thêm thông tin cấu trúc tiên nghiệm: \textbf{tín hiệu thực sự mang thông tin là một tín hiệu thưa} (hầu hết các tọa độ bằng 0), thì giao điểm giữa tập hợp các vector thưa và không gian nghiệm affine $x_0 + \ker(A)$ hoàn toàn có thể là một điểm duy nhất. Lý thuyết Lấy mẫu nén (\emph{Compressed Sensing}) khẳng định rằng: thông tin cấu trúc này cho phép giải quyết trọn vẹn nghịch lý thiếu phương trình.
+
+\section{Tín hiệu và biểu diễn thưa trong cơ sở biến đổi}
+Tín hiệu trong tự nhiên ban đầu là các hàm liên tục: âm thanh $s(t)$, ảnh số $I(u, v)$, hoặc video $V(u, v, t)$. Khi số hóa, ta lấy mẫu tín hiệu liên tục tại các thời điểm rời rạc $t_j = j T_s$, tạo thành dãy $\{x_j\}$, tương ứng với vector $x \in \R^n$. Một bức ảnh có kích thước $p \times q$ cũng có thể vector hóa thành một phần tử trong không gian $\R^{pq}$.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[>=stealth, auto, node distance=2.5cm,
+        block/.style={rectangle, draw=blue!70!black, fill=blue!5, thick, rounded corners, minimum height=3em, minimum width=6.5em, text centered}]
+        
+        \node [block] (a) {Tín hiệu $s(t)$};
+        \node [block, right=2.5cm of a] (b) {Vector $x \in \R^n$};
+        \node [block, right=2.5cm of b] (c) {Phép đo $b = Ax + e$};
+        
+        \draw [->, thick] (a) -- node [above] {Lấy mẫu} (b);
+        \draw [->, thick] (b) -- node [above] {Đo nén} (c);
+    \end{tikzpicture}
+    \caption{Sơ đồ chuỗi biến đổi từ tín hiệu liên tục, qua số hóa rời rạc đến phép đo nén tuyến tính có nhiễu.}
+    \label{fig:sampling_process}
+\end{figure}
+
+Phép đo nén $b_i = \sum_{j=1}^n a_{ij} x_j + e_i$ thu nhận sự kết hợp tuyến tính toàn cục từ các tọa độ của tín hiệu, không phải là việc ngẫu nhiên chọn lấy một vài thành phần đơn lẻ của $x$.
+
+Trong nhiều bài toán thực tế, tín hiệu $x$ không thưa trực tiếp trong miền thời gian hay không gian gốc, nhưng có biểu diễn thưa thông qua một cơ sở trực chuẩn hoặc từ điển $\Psi \in \R^{n \times n}$ (chẳng hạn như biến đổi Fourier rời rạc DFT hoặc Wavelet):
+\begin{equation}
+    x = \Psi \theta = \sum_{j=1}^n \theta_j \psi_j,
+\end{equation}
+trong đó $\theta \in \R^n$ là vector hệ số thưa. Khi đó phương trình đo trở thành:
+\begin{equation}
+    b = A x + e = A \Psi \theta + e = \widetilde{A} \theta + e,
+\end{equation}
+với $\widetilde{A} \coloneqq A \Psi \in \R^{m \times n}$ đóng vai trò là ma trận đo tương đương. Sau khi giải tìm được $\theta$, tín hiệu gốc được khôi phục chính xác thông qua phép tổng hợp $x = \Psi \theta$.
+
+\section{Chuẩn và khái niệm thưa toán học}
+\begin{definition}[Các chuẩn và đại lượng đếm]
+Cho vector $x = (x_1, \dots, x_n)^T \in \R^n$. Ta định nghĩa:
+\begin{itemize}
+    \item ``Chuẩn'' $\ell_0$ (đếm số tọa độ khác 0):
+    \[
+    \normzero{x} \coloneqq \#\{i \in \{1, \dots, n\} : x_i \ne 0\}.
+    \]
+    \item Chuẩn $\ell_1$ (chuẩn tổng giá trị tuyệt đối):
+    \[
+    \normone{x} \coloneqq \sum_{i=1}^n |x_i|.
+    \]
+    \item Chuẩn $\ell_2$ (chuẩn khoảng cách Euclid):
+    \[
+    \normtwo{x} \coloneqq \left( \sum_{i=1}^n x_i^2 \right)^{1/2}.
+    \]
+\end{itemize}
+\end{definition}
+
+\begin{remark}[Bản chất phi chuẩn của $\ell_0$]
+Đại lượng $\normzero{x}$ không phải là một chuẩn toán học thực sự vì nó vi phạm tính chất thuần nhất tuyệt đối: với mọi hằng số vô hướng $\alpha \ne 0, 1$, ta có:
+\[
+\normzero{\alpha x} = \normzero{x} \ne |\alpha| \normzero{x}.
+\]
+Ngoài ra, $\normzero{\cdot}$ không phải là một hàm lồi (ví dụ: với $x = (1, 0)^T, y = (0, 1)^T$, ta có $\normzero{x} = 1, \normzero{y} = 1$, nhưng $\normzero{\frac{1}{2}x + \frac{1}{2}y} = \normzero{(0.5, 0.5)^T} = 2 > \frac{1}{2}\normzero{x} + \frac{1}{2}\normzero{y} = 1$).
+\end{remark}
+
+Vector $x \in \R^n$ được gọi là \textbf{$k$-thưa} ($k$-sparse) nếu số lượng thành phần khác không của nó không vượt quá $k$:
+\[
+\normzero{x} \le k.
+\]
+Tập hợp các chỉ số khác không của $x$ được gọi là \textbf{tập hỗ trợ} (\emph{support}):
+\begin{equation}
+    \supp(x) \coloneqq \{i \in \{1, \dots, n\} : x_i \ne 0\}, \quad |\supp(x)| = \normzero{x}.
+\end{equation}
+
+\begin{lemma}[Bất đẳng thức kép giữa chuẩn $\ell_1$ và $\ell_2$]
+Với mọi $x \in \R^n$, ta có bất đẳng thức kép:
+\begin{equation}
+    \normtwo{x} \le \normone{x} \le \sqrt{n} \normtwo{x}.
+    \label{eq:norm_inequality}
+\end{equation}
+Dấu bằng ở vế trái xảy ra khi và chỉ khi $x$ là $1$-thưa (chỉ có tối đa một tọa độ khác không). Dấu bằng ở vế phải xảy ra khi và chỉ khi tất cả các tọa độ có cùng trị tuyệt đối ($|x_1| = |x_2| = \dots = |x_n|$).
+\end{lemma}
+
+\begin{proof}
+Để chứng minh vế trái $\normtwo{x} \le \normone{x}$, ta tính bình phương của chuẩn $\ell_1$:
+\[
+\normone{x}^2 = \left( \sum_{i=1}^n |x_i| \right)^2 = \sum_{i=1}^n |x_i|^2 + 2\sum_{1 \le i < j \le n} |x_i| |x_j| = \normtwo{x}^2 + 2\sum_{i < j} |x_i| |x_j|.
+\]
+Do tích $|x_i| |x_j| \ge 0$, ta có $\normone{x}^2 \ge \normtwo{x}^2$. Lấy căn bậc hai hai vế không âm, ta thu được $\normone{x} \ge \normtwo{x}$. Dấu bằng xảy ra khi và chỉ khi $\sum_{i < j} |x_i| |x_j| = 0$, nghĩa là không thể có đồng thời hai tọa độ khác không ($x$ là $1$-thưa).
+
+Để chứng minh vế phải $\normone{x} \le \sqrt{n} \normtwo{x}$, áp dụng bất đẳng thức Cauchy--Schwarz cho hai vector $u = (|x_1|, \dots, |x_n|)^T$ và $v = (1, \dots, 1)^T \in \R^n$:
+\[
+\normone{x} = \sum_{i=1}^n |x_i| \cdot 1 = \langle u, v \rangle \le \normtwo{u} \normtwo{v} = \sqrt{\sum_{i=1}^n |x_i|^2} \cdot \sqrt{\sum_{i=1}^n 1^2} = \sqrt{n} \normtwo{x}.
+\]
+Dấu bằng xảy ra khi và chỉ khi $u$ tỷ lệ với $v$, tức $|x_1| = |x_2| = \dots = |x_n|$.
+\end{proof}
+
+\section{Tính thưa xấp xỉ và sai số xấp xỉ tốt nhất}
+Trong thực tế, do nhiễu và bản chất liên tục của thế giới thực, các tín hiệu vật lý hiếm khi có các tọa độ bằng 0 chính xác tuyệt đối, mà thường có dạng \textbf{thưa xấp xỉ} (\emph{approximately sparse} hay \emph{compressible}): gồm một số ít hệ số lớn mang phần lớn năng lượng, và rất nhiều hệ số nhỏ suy giảm nhanh về 0 (tuân theo quy luật lũy thừa).
+
+Sai số xấp xỉ $k$-thưa tốt nhất của vector $x$ theo chuẩn $\ell_1$ được định nghĩa là:
+\begin{equation}
+    \sigma_k(x)_1 \coloneqq \inf_{\normzero{z} \le k} \normone{x - z}.
+    \label{eq:best_k_term_approx}
+\end{equation}
+
+\begin{exercise}[Chứng minh bài toán xấp xỉ tốt nhất của thầy]
+Chứng minh rằng infimum trong \eqref{eq:best_k_term_approx} đạt được tại vector $z^*$ tạo bởi việc giữ lại đúng $k$ tọa độ có giá trị tuyệt đối lớn nhất của $x$ và gán tất cả các tọa độ còn lại bằng 0.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết của sinh viên]
+Giả sử vector $x \in \R^n$ có các tọa độ được sắp xếp theo thứ tự giảm dần của trị tuyệt đối:
+\[
+|x_{\pi(1)}| \ge |x_{\pi(2)}| \ge \dots \ge |x_{\pi(k)}| \ge |x_{\pi(k+1)}| \ge \dots \ge |x_{\pi(n)}|,
+\]
+với $\pi$ là một hoán vị của tập chỉ số $\{1, 2, \dots, n\}$. Đặt $S = \{\pi(1), \pi(2), \dots, \pi(k)\}$, với $|S| = k$. 
+Định nghĩa vector $z^* \in \R^n$ như sau:
+\[
+z^*_i = 
+\begin{cases}
+x_i, & \text{nếu } i \in S, \\
+0, & \text{nếu } i \notin S.
+\end{cases}
+\]
+Rõ ràng $\normzero{z^*} = |S| = k$, do đó $z^*$ là một ứng viên khả thi. Khi đó:
+\[
+\normone{x - z^*} = \sum_{i \in S} |x_i - x_i| + \sum_{i \notin S} |x_i - 0| = \sum_{j=k+1}^n |x_{\pi(j)}|.
+\]
+
+Bây giờ xét một vector $k$-thưa tùy ý $z \in \R^n$ với tập hỗ trợ $T = \supp(z)$, thỏa mãn $|T| \le k$.
+Sử dụng tính chất phân tách của chuẩn $\ell_1$:
+\[
+\normone{x - z} = \sum_{i \in T} |x_i - z_i| + \sum_{i \notin T} |x_i - 0| \ge \sum_{i \notin T} |x_i|.
+\]
+Tập hợp $\{1, \dots, n\} \setminus T$ có lực lượng ít nhất là $n - k$. Do $S$ là tập hợp gồm $k$ phần tử có giá trị tuyệt đối lớn nhất của $x$, tập hợp bù $S^c$ chính là tập hợp gồm $n - k$ phần tử có giá trị tuyệt đối nhỏ nhất. Do đó, tổng trên tập bù của bất kỳ tập $T$ nào có kích thước không quá $k$ đều không nhỏ hơn tổng trên $S^c$:
+\[
+\sum_{i \notin T} |x_i| \ge \sum_{i \in S^c} |x_i| = \sum_{j=k+1}^n |x_{\pi(j)}| = \normone{x - z^*}.
+\]
+Như vậy, với mọi vector $k$-thưa $z$, ta luôn có $\normone{x - z} \ge \normone{x - z^*}$. Do đó:
+\[
+\sigma_k(x)_1 = \normone{x - z^*} = \sum_{j=k+1}^n |x_{\pi(j)}|.
+\]
+Bài tập được chứng minh trọn vẹn.
+\end{proof}

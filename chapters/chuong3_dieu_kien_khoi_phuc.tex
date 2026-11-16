@@ -1,0 +1,289 @@
+% ==============================================================================
+% CHƯƠNG 3: CÁC ĐIỀU KIỆN KHÔI PHỤC VÀ TÍNH ỔN ĐỊNH
+% ==============================================================================
+\chapter{Các điều kiện khôi phục và tính ổn định}
+\label{chap:dieu_kien_khoi_phuc}
+
+Để một bài toán khôi phục tín hiệu thưa có ý nghĩa thực tiễn, sinh viên ngành toán cần trả lời ba câu hỏi nền tảng:
+\begin{enumerate}
+    \item \emph{Tín hiệu thưa có được xác định duy nhất từ phép đo không?} (Tính duy nhất toán học).
+    \item \emph{Thuật toán tối ưu lồi (Basis Pursuit) có tìm ra đúng nghiệm đó không?} (Tính khả giải thuật toán).
+    \item \emph{Nghiệm tìm được có bền vững và ổn định khi hệ thống bị nhiễu không?} (Tính ổn định số).
+\end{enumerate}
+Chương này sẽ xây dựng hệ thống các định lý tương ứng: Spark, Tính chất không gian hạt nhân (NSP), Mutual Coherence và Tính chất đẳng cự hạn chế (RIP).
+
+\section{Tính duy nhất và chỉ số Spark}
+\begin{definition}[Spark của ma trận đo]
+Cho ma trận $A \in \R^{m \times n}$. $\spark(A)$ được định nghĩa là số lượng cột nhỏ nhất của $A$ phụ thuộc tuyến tính:
+\begin{equation}
+    \spark(A) \coloneqq \min \{ \normzero{h} : h \in \ker(A), \, h \ne 0 \}.
+\end{equation}
+\end{definition}
+
+So sánh với hạng (\emph{Rank}): $\rank(A)$ là số cột độc lập tuyến tính \emph{lớn nhất}, trong khi $\spark(A)$ là số cột phụ thuộc tuyến tính \emph{nhỏ nhất}. Ta luôn có mối quan hệ:
+\begin{equation}
+    2 \le \spark(A) \le \rank(A) + 1 \le m + 1.
+\end{equation}
+
+\begin{theorem}[Điều kiện cần và đủ cho tính duy nhất qua Spark]
+Mọi vector $k$-thưa $x$ được xác định duy nhất trong lớp các vector $k$-thưa từ phép đo $b = Ax$ khi và chỉ khi:
+\begin{equation}
+    \spark(A) > 2k.
+    \label{eq:spark_condition}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+$(\implies)$ Giả sử ngược lại $\spark(A) \le 2k$. Khi đó, theo định nghĩa của Spark, tồn tại vector khác không $h \in \ker(A)$ sao cho $\normzero{h} \le 2k$. Ta phân hoạch tập hỗ trợ của $h$ thành hai tập con rời nhau: $\supp(h) = S_1 \cup S_2$ với $|S_1| \le k$, $|S_2| \le k$ và $S_1 \cap S_2 = \emptyset$. Định nghĩa:
+\[
+x = h_{S_1}, \quad z = -h_{S_2}.
+\]
+Rõ ràng cả $x$ và $z$ đều là các vector $k$-thưa vì $|S_1| \le k, |S_2| \le k$. Do $h \ne 0$, ta có $x \ne z$. Tuy nhiên:
+\[
+A(x - z) = A(h_{S_1} + h_{S_2}) = Ah = 0 \implies Ax = Az.
+\]
+Điều này chứng tỏ tồn tại hai vector $k$-thưa phân biệt cho cùng kết quả đo $b$, mâu thuẫn với giả thiết về tính duy nhất.
+
+$(\impliedby)$ Giả sử $\spark(A) > 2k$. Giả sử có hai vector $k$-thưa $x, z \in \R^n$ thỏa mãn $Ax = Az$. Đặt $h = x - z$. Khi đó $Ah = A(x - z) = 0 \implies h \in \ker(A)$. Sử dụng bất đẳng thức tam giác cho số phần tử khác không:
+\[
+\normzero{h} = \normzero{x - z} \le \normzero{x} + \normzero{z} \le k + k = 2k.
+\]
+Nếu $h \ne 0$, thì $\spark(A) \le \normzero{h} \le 2k$, mâu thuẫn với giả thiết $\spark(A) > 2k$. Do đó bắt buộc $h = 0 \implies x = z$. Nghiệm $k$-thưa được xác định duy nhất.
+\end{proof}
+
+\begin{remark}[Ranh giới số phép đo]
+Vì $\spark(A) \le m + 1$, điều kiện $\spark(A) > 2k$ đòi hỏi $m + 1 \ge \spark(A) \ge 2k + 1 \implies m \ge 2k$. Để khôi phục một tín hiệu $k$-thưa, số phép đo tối thiểu cần thiết luôn phải gấp đôi mức thưa. Tuy nhiên, định lý này chỉ khẳng định nghiệm là duy nhất trong mô hình tổ hợp $(P_0)$; nó chưa đảm bảo thuật toán đa thức Basis Pursuit có thể tìm ra nghiệm đó.
+\end{remark}
+
+\begin{exercise}[Bài tập tính Spark của giảng viên]
+Cho ma trận $A = \begin{pmatrix} 1 & 0 & 1 \\ 0 & 1 & 1 \end{pmatrix} \in \R^{2 \times 3}$. Hãy tính $\spark(A)$ và nhận xét về khả năng khôi phục duy nhất các vector $1$-thưa.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết của sinh viên]
+Gọi các cột của $A$ là $a_1 = (1, 0)^T, a_2 = (0, 1)^T, a_3 = (1, 1)^T$.
+\begin{itemize}
+    \item Xét từng cặp 2 cột:
+    $\{a_1, a_2\}$ độc lập tuyến tính; $\{a_1, a_3\}$ độc lập tuyến tính; $\{a_2, a_3\}$ độc lập tuyến tính. Do đó không có tập 2 cột nào phụ thuộc tuyến tính.
+    \item Xét cả 3 cột:
+    Rõ ràng $a_1 + a_2 - a_3 = \begin{pmatrix} 1 \\ 0 \end{pmatrix} + \begin{pmatrix} 0 \\ 1 \end{pmatrix} - \begin{pmatrix} 1 \\ 1 \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$.
+    Vậy hệ 3 cột $\{a_1, a_2, a_3\}$ phụ thuộc tuyến tính, tương ứng vector $h = (1, 1, -1)^T \in \ker(A)$ có $\normzero{h} = 3$.
+\end{itemize}
+Do đó, số cột phụ thuộc tuyến tính nhỏ nhất là 3, tức:
+\[
+\spark(A) = 3.
+\]
+\textbf{Nhận xét khả năng khôi phục vector $1$-thưa ($k = 1$):}
+Ta có $2k = 2(1) = 2$. Vì $\spark(A) = 3 > 2$, điều kiện $\spark(A) > 2k$ được thỏa mãn tuyệt đối! 
+Do đó, ma trận $A$ đảm bảo **mọi vector $1$-thưa đều được xác định duy nhất** từ phép đo $b = Ax$.
+\end{proof}
+
+\section{Tính chất không gian hạt nhân (NSP) và điều kiện cần đủ của BP}
+Mặc dù Spark giải quyết tính duy nhất, nó không cho biết liệu thuật toán lồi Basis Pursuit có tìm được nghiệm hay không. Cầu nối toán học sâu sắc nhất trả lời câu hỏi này là **Tính chất không gian hạt nhân** (\emph{Null Space Property} - NSP).
+
+\begin{definition}[NSP bậc $k$]
+Ma trận $A \in \R^{m \times n}$ thỏa mãn tính chất NSP bậc $k$ nếu với mọi vector khác không $h \in \ker(A) \setminus \{0\}$ và với mọi tập chỉ số $S \subset \{1, \dots, n\}$ thỏa mãn $|S| \le k$, ta đều có:
+\begin{equation}
+    \normone{h_S} < \normone{h_{S^c}}.
+    \label{eq:nsp_definition}
+\end{equation}
+\end{definition}
+
+\textbf{Ý nghĩa trực giác:} Bất kỳ vector nào nằm trong không gian suy biến $\ker(A)$ đều không được phép tập trung năng lượng chuẩn $\ell_1$ vào một tập con nhỏ ($|S| \le k$), mà bắt buộc năng lượng phải phân tán rộng ra phần bù $S^c$.
+
+\begin{theorem}[Định lý cần và đủ của Basis Pursuit]
+Ma trận $A$ thỏa mãn NSP bậc $k$ khi và chỉ khi Basis Pursuit khôi phục chính xác mọi vector $k$-thưa $x^\natural$ từ phép đo $b = Ax^\natural$.
+\end{theorem}
+
+\begin{proof}[Chứng minh hoàn chỉnh cả hai chiều theo yêu cầu đồ án]
+\textbf{1. Chiều đủ ($\implies$):} 
+Giả sử $A$ thỏa mãn NSP bậc $k$. Cho $x^\natural$ là vector $k$-thưa tùy ý với tập hỗ trợ $S = \supp(x^\natural)$, nghĩa là $|S| \le k$ và $x^\natural_{S^c} = 0$. 
+
+Xét một nghiệm khả thi bất kỳ $x \ne x^\natural$ thỏa mãn $Ax = b$. Đặt $h = x - x^\natural$. Ta có $h \ne 0$ và:
+\[
+Ah = A(x - x^\natural) = b - b = 0 \implies h \in \ker(A) \setminus \{0\}.
+\]
+Ta tính chuẩn $\ell_1$ của $x = x^\natural + h$:
+\[
+\normone{x} = \normone{x^\natural_S + h_S} + \normone{x^\natural_{S^c} + h_{S^c}} = \normone{x^\natural_S + h_S} + \normone{h_{S^c}}.
+\]
+Theo bất đẳng thức tam giác ngược: $\normone{x^\natural_S + h_S} \ge \normone{x^\natural_S} - \normone{h_S}$. Do đó:
+\[
+\normone{x} \ge \normone{x^\natural_S} - \normone{h_S} + \normone{h_{S^c}} = \normone{x^\natural} + (\normone{h_{S^c}} - \normone{h_S}).
+\]
+Áp dụng giả thiết NSP bậc $k$ cho vector $h \in \ker(A) \setminus \{0\}$, ta có $\normone{h_{S^c}} - \normone{h_S} > 0$. Suy ra:
+\[
+\normone{x} > \normone{x^\natural}.
+\]
+Vì mọi nghiệm khả thi $x$ khác $x^\natural$ đều có chuẩn $\ell_1$ thực sự lớn hơn $\normone{x^\natural}$, tín hiệu gốc $x^\natural$ là nghiệm tối ưu duy nhất của bài toán Basis Pursuit.
+
+\textbf{2. Chiều cần ($\impliedby$):} 
+Giả sử NSP bậc $k$ bị vi phạm. Khi đó tồn tại $h \in \ker(A) \setminus \{0\}$ và một tập chỉ số $S$ với $|S| \le k$ sao cho:
+\[
+\normone{h_S} \ge \normone{h_{S^c}}.
+\]
+Ta chọn tín hiệu gốc là $x^\natural \coloneqq -h_S$. Vì $\supp(x^\natural) \subseteq S$ và $|S| \le k$, $x^\natural$ thực sự là một vector $k$-thưa. Xét vector thứ hai $z \coloneqq h_{S^c}$. Ta kiểm tra quan hệ giữa hai vector:
+\[
+z - x^\natural = h_{S^c} - (-h_S) = h_{S^c} + h_S = h \in \ker(A) \implies Az = Ax^\natural = b.
+\]
+Như vậy $z$ là một nghiệm khả thi của bài toán BP ứng với dữ liệu đo $b = Ax^\natural$. Đồng thời:
+\[
+\normone{z} = \normone{h_{S^c}} \le \normone{h_S} = \normone{-h_S} = \normone{x^\natural}.
+\]
+Điều này chứng tỏ tồn tại nghiệm khả thi $z \ne x^\natural$ có chuẩn $\ell_1$ không lớn hơn chuẩn $\ell_1$ của $x^\natural$. Do đó, Basis Pursuit không thể khôi phục duy nhất tín hiệu $x^\natural$. Phép chứng minh được hoàn tất trọn vẹn.
+\end{proof}
+
+\section{Mutual Coherence và điều kiện đủ}
+Kiểm tra điều kiện NSP đòi hỏi phải giải một bài toán kiểm tra trên toàn bộ không gian vô hạn chiều $\ker(A)$, điều này rất khó khăn đối với các ma trận kích thước lớn. Để khắc phục, ta sử dụng **Mutual Coherence** (Độ tương quan qua lại) như một chỉ số đại số có thể tính toán trực tiếp với độ phức tạp $\mathcal{O}(m n^2)$.
+
+Giả sử các cột $a_1, \dots, a_n$ của ma trận $A$ được chuẩn hóa theo chuẩn Euclid: $\normtwo{a_i} = 1, \forall i = 1, \dots, n$.
+
+\begin{definition}[Mutual Coherence]
+Độ tương quan qua lại của ma trận $A$ được định nghĩa là:
+\begin{equation}
+    \mu(A) \coloneqq \max_{1 \le i \ne j \le n} |a_i^T a_j|.
+\end{equation}
+\end{definition}
+
+Nếu $\mu(A)$ nhỏ, các cột của ma trận đo gần như trực giao đôi một, khiến các thành phần tín hiệu không bị nhầm lẫn vào nhau.
+
+\begin{theorem}[Điều kiện đủ khôi phục dựa trên Coherence]
+Nếu mức độ thưa $k$ thỏa mãn bất đẳng thức:
+\begin{equation}
+    k < \frac{1}{2} \left( 1 + \frac{1}{\mu(A)} \right),
+    \label{eq:coherence_bound}
+\end{equation}
+thì Basis Pursuit khôi phục chính xác mọi vector $k$-thưa (quy ước nếu $\mu(A) = 0$ thì các cột trực giao hoàn toàn và khôi phục đúng với mọi $k$).
+\end{theorem}
+
+\begin{proof}[Chứng minh chi tiết theo gợi ý của giảng viên]
+Cho $h \in \ker(A) \setminus \{0\}$. Ta có $Ah = 0 \implies A^T A h = 0$. Xét tọa độ thứ $i$ của vector $A^T A h$:
+\[
+(A^T A h)_i = a_i^T \left( \sum_{j=1}^n a_j h_j \right) = \|a_i\|_2^2 h_i + \sum_{j \ne i} (a_i^T a_j) h_j = 0.
+\]
+Do các cột đã chuẩn hóa $\|a_i\|_2 = 1$, ta có:
+\[
+h_i = -\sum_{j \ne i} (a_i^T a_j) h_j.
+\]
+Lấy trị tuyệt đối và sử dụng bất đẳng thức tam giác:
+\[
+|h_i| \le \sum_{j \ne i} |a_i^T a_j| |h_j| \le \mu(A) \sum_{j \ne i} |h_j| = \mu(A) (\normone{h} - |h_i|).
+\]
+Chuyển $|h_i|$ sang vế trái:
+\[
+(1 + \mu(A)) |h_i| \le \mu(A) \normone{h} \implies |h_i| \le \frac{\mu(A)}{1 + \mu(A)} \normone{h}, \quad \forall i = 1, \dots, n.
+\]
+Bây giờ, xét tập chỉ số $S$ bất kỳ có lực lượng $|S| \le k$. Lấy tổng trên $S$:
+\[
+\normone{h_S} = \sum_{i \in S} |h_i| \le |S| \frac{\mu(A)}{1 + \mu(A)} \normone{h} \le \frac{k \mu(A)}{1 + \mu(A)} \normone{h}.
+\]
+Để đảm bảo điều kiện NSP ($\normone{h_S} < \normone{h_{S^c}}$ tương đương với $\normone{h_S} < \frac{1}{2} \normone{h}$), ta chỉ cần:
+\[
+\frac{k \mu(A)}{1 + \mu(A)} < \frac{1}{2} \iff 2k \mu(A) < 1 + \mu(A) \iff k < \frac{1}{2} \left( 1 + \frac{1}{\mu(A)} \right).
+\]
+Điều kiện này suy trực tiếp ra NSP bậc $k$, và do đó BP khôi phục đúng mọi vector $k$-thưa.
+\end{proof}
+
+\begin{remark}
+Đây là **điều kiện đủ**, không phải điều kiện cần. Trong trường hợp ma trận có hai cột rất gần nhau khiến $\mu(A) \approx 1$, cận trên \eqref{eq:coherence_bound} suy thoái thành $k < 1$, dù trong thực tế nhiều tín hiệu thưa vẫn có thể khôi phục được nếu phần lớn các cột còn lại thỏa mãn tính chất phân tán tốt.
+\end{remark}
+
+\section{Tính chất đẳng cự hạn chế (RIP) và ý nghĩa hình học}
+\begin{definition}[Restricted Isometry Property - RIP]
+Ma trận $A \in \R^{m \times n}$ thỏa mãn tính chất đẳng cự hạn chế bậc $k$ với hằng số $\delta_k \in [0, 1)$ nếu:
+\begin{equation}
+    (1 - \delta_k) \normtwo{h}^2 \le \normtwo{Ah}^2 \le (1 + \delta_k) \normtwo{h}^2, \quad \forall h \in \R^n : \normzero{h} \le k.
+\end{equation}
+\end{definition}
+
+\textbf{Ý nghĩa hình học:} Mặc dù phép biến đổi $A$ giảm chiều không gian từ $n$ xuống $m$, $A$ gần như bảo toàn chuẩn Euclid của tất cả các vector thưa (hành xử như một phép đẳng cự cục bộ).
+
+\begin{theorem}
+Nếu $\delta_{2k} < 1$, thì không thể tồn tại hai vector $k$-thưa khác nhau có cùng kết quả đo $Ax$.
+\end{theorem}
+
+\begin{proof}
+Nếu có hai vector $k$-thưa $x \ne z$ thỏa $Ax = Az$, thì $h = x - z \ne 0$ là vector $2k$-thưa ($\normzero{h} \le 2k$). Theo định nghĩa RIP bậc $2k$:
+\[
+\normtwo{Ah}^2 \ge (1 - \delta_{2k}) \normtwo{h}^2 > 0 \implies Ah \ne 0 \implies Ax \ne Az.
+\]
+Mâu thuẫn này chứng tỏ $\delta_{2k} < 1$ là điều kiện đủ bảo đảm tính duy nhất.
+\end{proof}
+
+\begin{theorem}[Định lý ổn định Candès--Romberg--Tao]
+Nếu ma trận $A$ thỏa mãn tính chất RIP bậc $2k$ với:
+\begin{equation}
+    \delta_{2k} < \sqrt{2} - 1 \approx 0.4142,
+\end{equation}
+thì Basis Pursuit khôi phục chính xác mọi vector $k$-thưa trong trường hợp không nhiễu. Hơn nữa, khi có nhiễu, BPDN cho nghiệm khôi phục bền vững.
+\end{theorem}
+
+\section{Khôi phục ổn định khi có nhiễu}
+Giả sử mô hình quan sát có nhiễu: $b = Ax^\natural + e$ với $\normtwo{e} \le \varepsilon$. Mô hình BPDN tìm kiếm:
+\begin{equation}
+    \widehat{x} \in \argmin_{x \in \R^n} \normone{x} \quad \text{s.t.} \quad \normtwo{Ax - b} \le \varepsilon.
+\end{equation}
+
+Do vector gốc $x^\natural$ thỏa mãn $\normtwo{Ax^\natural - b} = \normtwo{e} \le \varepsilon$, $x^\natural$ là một nghiệm khả thi, suy ra:
+\begin{equation}
+    \normone{\widehat{x}} \le \normone{x^\natural}.
+\end{equation}
+
+\begin{exercise}[Bài tập của giảng viên về ước lượng sai số miền đo]
+Chứng minh ước lượng $\normtwo{A(\widehat{x} - x^\natural)} \le 2\varepsilon$ và giải thích vì sao nếu ma trận $A$ có hạt nhân lớn, riêng ước lượng này chưa đủ để khống chế sai số tái tạo $\normtwo{\widehat{x} - x^\natural}$.
+\end{exercise}
+
+\begin{proof}[Lời giải chi tiết của sinh viên]
+Áp dụng bất đẳng thức tam giác cho chuẩn Euclid:
+\[
+\normtwo{A(\widehat{x} - x^\natural)} = \normtwo{(A\widehat{x} - b) + (b - Ax^\natural)} \le \normtwo{A\widehat{x} - b} + \normtwo{b - Ax^\natural}.
+\]
+Vì $\widehat{x}$ khả thi đối với BPDN, ta có $\normtwo{A\widehat{x} - b} \le \varepsilon$. Đồng thời theo giả thiết nhiễu, $\normtwo{b - Ax^\natural} = \normtwo{e} \le \varepsilon$. Do đó:
+\[
+\normtwo{A(\widehat{x} - x^\natural)} \le \varepsilon + \varepsilon = 2\varepsilon.
+\]
+Bất đẳng thức được chứng minh.
+
+\textbf{Giải thích bản chất:} 
+Ước lượng $\normtwo{A(\widehat{x} - x^\natural)} \le 2\varepsilon$ chỉ kiểm soát sai số \textbf{trong không gian đo} $\R^m$. 
+Nếu ma trận $A$ có không gian hạt nhân lớn ($\dim(\ker A) = n - m > 0$), ta có thể phân tích sai số thành hai thành phần trực giao:
+\[
+\widehat{x} - x^\natural = h_{\parallel} + h_{\perp}, \quad \text{với } h_{\parallel} \in \ker(A) \text{ và } h_{\perp} \in (\ker A)^\perp.
+\]
+Khi đó $A(\widehat{x} - x^\natural) = A(h_{\parallel} + h_{\perp}) = 0 + Ah_{\perp} = Ah_{\perp}$. 
+Do đó, đại lượng $\normtwo{A(\widehat{x} - x^\natural)} \le 2\varepsilon$ chỉ khống chế được thành phần $h_{\perp}$, trong khi thành phần hạt nhân $h_{\parallel}$ có thể lớn tùy ý mà không làm thay đổi giá trị của $A(\widehat{x} - x^\natural)$. 
+
+Chính vì lý do này, để kiểm soát toàn bộ sai số tái tạo $\normtwo{\widehat{x} - x^\natural}$, ta bắt buộc phải bổ sung các giả thiết hình học mạnh mẽ lên ma trận $A$ như RIP hoặc NSP vững để đảm bảo vector sai số không thể rơi vào hạt nhân của $A$.
+\end{proof}
+
+\begin{theorem}[Chặn sai số tổng quát dưới điều kiện RIP]
+Dưới giả thiết RIP $\delta_{2k} < \sqrt{2} - 1$, nghiệm $\widehat{x}$ của BPDN thỏa mãn:
+\begin{equation}
+    \normtwo{\widehat{x} - x^\natural} \le C_0 \frac{\sigma_k(x^\natural)_1}{\sqrt{k}} + C_1 \varepsilon,
+    \label{eq:bpdn_error_bound}
+\end{equation}
+trong đó $C_0$ và $C_1$ là các hằng số hữu hạn chỉ phụ thuộc vào $\delta_{2k}$.
+\end{theorem}
+
+\textbf{Phân tích hai thành phần trong chặn sai số:}
+\begin{itemize}
+    \item $C_0 \frac{\sigma_k(x^\natural)_1}{\sqrt{k}}$: Sai số xấp xỉ cấu trúc. Nếu tín hiệu $x^\natural$ là $k$-thưa chính xác, số hạng này bằng 0 tuyệt đối. Nếu tín hiệu chỉ thưa xấp xỉ, sai số tỷ lệ với phần đuôi năng lượng bị cắt bỏ.
+    \item $C_1 \varepsilon$: Sai số đo lường. Sai số tỷ lệ thuận tuyến tính với mức độ nhiễu và được chặn vững chắc, khẳng định tính ổn định của mô hình.
+\end{itemize}
+
+\section{Thảo luận và so sánh ba khái niệm trụ cột}
+\begin{table}[htbp]
+\centering
+\caption{Bảng đối sánh tổng hợp giữa Spark, NSP và RIP theo yêu cầu thảo luận của giảng viên.}
+\label{tab:comparison_discussion}
+\begin{tabular}{lp{4cm}p{5.5cm}p{3cm}}
+\toprule
+\textbf{Khái niệm} & \textbf{Câu hỏi giải quyết} & \textbf{Bản chất toán học} & \textbf{Độ phức tạp kiểm tra} \\
+\midrule
+$\spark(A) > 2k$ & Nghiệm thưa có duy nhất không? & Số cột phụ thuộc tuyến tính tối thiểu trong $A$ & NP-hard (tổ hợp) \\
+NSP bậc $k$ & Thuật toán BP có tìm được không? & Phân bố năng lượng $\normone{h_S} < \normone{h_{S^c}}$ trên $\ker(A)$ & Khó kiểm tra số \\
+RIP $\delta_{2k}$ & Nghiệm có ổn định dưới nhiễu không? & Bảo toàn độ dài Euclid trên tập các vector thưa & Khó kiểm tra chặt \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Ba khái niệm trên hình thành một chuỗi logic hoàn chỉnh: **Spark** thiết lập giới hạn lý thuyết cho tính duy nhất; **NSP** là điều kiện cần và đủ cho thuật toán giải đa thức; và **RIP** là công cụ phân tích độ bền vững khi có nhiễu thực tế.

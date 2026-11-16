@@ -1,0 +1,26 @@
+% ==============================================================================
+% KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+% ==============================================================================
+\chapter*{Kết luận và hướng phát triển}
+\addcontentsline{toc}{chapter}{Kết luận và hướng phát triển}
+
+\section*{Tổng kết đề tài}
+Đề tài đồ án đã giải quyết một cách toàn diện và có hệ thống bài toán khôi phục tín hiệu thưa bằng phương pháp cực tiểu hóa chuẩn $\ell_1$. 
+
+Qua quá trình nghiên cứu lý thuyết giải tích lồi, đại số tuyến tính và phương pháp tính, sinh viên đã làm sáng tỏ câu trả lời cho **ba câu hỏi cốt lõi** được giảng viên nhấn mạnh:
+\begin{enumerate}
+    \item \textbf{Tín hiệu có được xác định duy nhất không?} Điều kiện Spark $\spark(A) > 2k$ xác lập ranh giới hình học cần và đủ cho tính duy nhất trong lớp các vector thưa, khẳng định rằng số phép đo tối thiểu phải thỏa mãn $m \ge 2k$.
+    \item \textbf{Thuật toán tối ưu lồi có tìm được nghiệm không?} Tính chất không gian hạt nhân (NSP) bậc $k$ chính là điều kiện cần và đủ hoàn hảo để thuật toán đa thức Basis Pursuit tìm đúng nghiệm nguyên bản, khắc phục hoàn toàn tính bất khả triệt NP-hard của bài toán $\ell_0$. Bên cạnh đó, Mutual Coherence $\mu(A)$ cung cấp một tiêu chuẩn đủ có thể tính toán nhanh chóng trong thực tế.
+    \item \textbf{Kết quả có ổn định dưới tác động của nhiễu không?} Tính chất đẳng cự hạn chế (RIP) $\delta_{2k} < \sqrt{2} - 1$ cung cấp các đánh giá lý thuyết chặt chẽ nhất, bảo đảm rằng nghiệm khôi phục từ mô hình BPDN và LASSO thỏa mãn chặn sai số bền vững $\normtwo{\widehat{x} - x^\natural} \le C_0 \frac{\sigma_k(x^\natural)_1}{\sqrt{k}} + C_1 \varepsilon$.
+\end{enumerate}
+
+Về mặt thuật toán, việc so sánh giữa ISTA, FISTA, GPSR và ADMM đã chứng minh rằng việc kết hợp toán tử gần kề (co ngưỡng mềm) với kỹ thuật gia tốc Nesterov hoặc phân tách biến luân phiên cho phép xử lý hiệu quả các bài toán nén tín hiệu và hình ảnh quy mô lớn.
+
+\section*{Hướng phát triển mở rộng}
+Trên nền tảng lý thuyết đã đạt được, các hướng nghiên cứu tiếp theo bao gồm:
+\begin{itemize}
+    \item \textbf{Tối ưu hóa Tổng biến thiên (Total Variation - TV):} Khôi phục các tín hiệu có đạo hàm hoặc gradient thưa, đặc biệt hiệu quả trong việc khử nhiễu và bảo tồn biên cạnh sắc nét của ảnh y khoa và ảnh vệ tinh.
+    \item \textbf{Tín hiệu thưa theo nhóm (Group Sparsity):} Khai thác cấu trúc các hệ số thưa xuất hiện đồng thời theo từng cụm hoặc khối liên kết, sử dụng chuẩn hỗn hợp $\ell_{2,1}$.
+    \item \textbf{Khôi phục ma trận hạng thấp (Matrix Completion / Robust PCA):} Mở rộng từ vector thưa sang ma trận có các giá trị suy biến thưa bằng cách cực tiểu hóa chuẩn hạt nhân (\emph{Nuclear Norm}), ứng dụng trong hệ thống gợi ý và tách nền video.
+    \item \textbf{Deep Unfolding:} Nhúng cấu trúc các bước lặp của FISTA hoặc ADMM thành các tầng của mạng nơ-ron sâu (chẳng hạn như mạng Learned ISTA - LISTA), cho phép học ma trận đo và các tham số tối ưu trực tiếp từ dữ liệu huấn luyện.
+\end{itemize}

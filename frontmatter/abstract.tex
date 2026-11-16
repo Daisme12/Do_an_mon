@@ -1,0 +1,19 @@
+% ==============================================================================
+% LỜI MỞ ĐẦU & TÓM TẮT ĐỀ TÀI
+% ==============================================================================
+\chapter*{Lời mở đầu}
+\addcontentsline{toc}{chapter}{Lời mở đầu}
+
+Trong thời đại số hóa, khối lượng dữ liệu được thu thập từ các hệ thống cảm biến, thiết bị chẩn đoán y tế, viễn thông và thị giác máy tính ngày càng tăng với tốc độ bùng nổ. Tuy nhiên, việc thu nhận toàn bộ các thành phần của tín hiệu thường vấp phải các rào cản vật lý nghiêm ngặt: giới hạn về thời gian quét của máy chụp ảnh cộng hưởng từ (MRI), giới hạn năng lượng pin của các cảm biến không dây, hoặc hạn chế về băng thông truyền dẫn trong mạng viễn thông.
+
+Thách thức trung tâm của bài toán đặt ra là: \emph{Làm thế nào để khôi phục chính xác tín hiệu ban đầu khi số phép đo thực tế ít hơn rất nhiều so với số chiều của tín hiệu, đồng thời dữ liệu lại chịu ảnh hưởng của nhiễu ngẫu nhiên?}
+
+Thông qua lý thuyết Lấy mẫu nén (\emph{Compressed Sensing}), tính chất thưa (\emph{sparsity}) đóng vai trò là chiếc chìa khóa quyết định. Việc tối ưu hóa chuẩn $\ell_1$ cho phép chuyển bài toán đếm tổ hợp NP-hard sang bài toán quy hoạch lồi giải được trong thời gian đa thức.
+
+Đồ án này tập trung vào 4 trọng tâm nghiên cứu:
+\begin{enumerate}
+    \item Hệ thống hóa cơ sở toán học và các mô hình tối ưu chuẩn: Basis Pursuit (BP), Basis Pursuit Denoising (BPDN) và LASSO.
+    \item Phân tích các điều kiện khôi phục lý thuyết cốt lõi: Spark, Tính chất không gian hạt nhân (NSP), Tính tương quan qua lại (Mutual Coherence) và Tính chất đẳng cự hạn chế (RIP).
+    \item Cài đặt và đánh giá các thuật toán tối ưu bậc nhất: ISTA, FISTA, GPSR và thuật toán nhân tử Lagrange tăng cường ADMM.
+    \item Xây dựng quy trình thực nghiệm mô phỏng và kiểm chứng trên ảnh thực tế.
+\end{enumerate}

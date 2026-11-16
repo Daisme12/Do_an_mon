@@ -1,0 +1,254 @@
+% ==============================================================================
+% CHƯƠNG 2: CÁC MÔ HÌNH TỐI ƯU VÀ HÌNH HỌC CHUẨN L1
+% ==============================================================================
+\chapter{Các mô hình tối ưu và hình học của chuẩn $\ell_1$}
+\label{chap:mo_hinh_toi_uu}
+
+\section{Hệ thống các mô hình tối ưu khôi phục tín hiệu}
+Xét bài toán quan sát tuyến tính:
+\begin{equation}
+    b = A x^\natural + e,
+\end{equation}
+trong đó $x^\natural \in \R^n$ là tín hiệu nguyên bản cần tìm, ma trận đo $A \in \R^{m \times n}$ ($m < n$), và $e \in \R^m$ là vector nhiễu.
+
+\subsection{Bài toán cực tiểu hóa chuẩn $\ell_0$ và tính bất khả triệt NP-hard}
+Trong trường hợp lý tưởng không có nhiễu ($e = 0$), bài toán trực tiếp nhất là tìm kiếm vector có số phần tử khác không ít nhất thỏa mãn các phương trình đo:
+\begin{equation}
+    (P_0) \quad \min_{x \in \R^n} \normzero{x} \quad \text{s.t.} \quad Ax = b.
+\end{equation}
+
+Mặc dù mô hình $(P_0)$ phản ánh đúng định nghĩa của tính thưa, bài toán này thuộc lớp **NP-hard** (đã được chứng minh bởi Natarajan, 1995). Về mặt tổ hợp, để giải $(P_0)$, ta phải duyệt qua tất cả các tổ hợp gồm $k$ cột trong số $n$ cột của ma trận $A$, tức $\binom{n}{k}$ không gian con. Khi $n$ và $k$ chỉ ở mức trung bình (ví dụ $n = 500, k = 30$), số lượng tổ hợp là $\approx 10^{46}$, vượt quá khả năng tính toán của mọi siêu máy tính. Hơn nữa, hàm mục tiêu $\normzero{\cdot}$ gián đoạn và không lồi, khiến mọi phương pháp giải tích dựa trên đạo hàm hoàn toàn vô hiệu.
+
+\begin{theorem}[Tính lồi của chuẩn $\ell_1$ và không lồi của $\ell_0$]
+Chuẩn $\normone{\cdot}$ là một hàm lồi trên $\R^n$, trong khi đại lượng $\normzero{\cdot}$ không phải là hàm lồi.
+\end{theorem}
+
+\begin{proof}
+1. \textbf{Tính lồi của chuẩn $\ell_1$:} Với mọi $x, y \in \R^n$ và mọi $\alpha \in [0, 1]$, theo bất đẳng thức tam giác của giá trị tuyệt đối:
+\[
+\normone{\alpha x + (1 - \alpha) y} = \sum_{i=1}^n |\alpha x_i + (1 - \alpha) y_i| \le \sum_{i=1}^n \left( \alpha |x_i| + (1 - \alpha) |y_i| \right) = \alpha \normone{x} + (1 - \alpha) \normone{y}.
+\]
+Do đó hàm chuẩn $\ell_1$ là hàm lồi (thậm chí là lồi chính quy).
+
+2. \textbf{Tính không lồi của chuẩn $\ell_0$:} Ta chứng minh bằng một phản ví dụ trong $\R^2$. Chọn $x = (2, 0)^T$ và $y = (0, 2)^T$. Ta có $\normzero{x} = 1$ và $\normzero{y} = 1$. Chọn $\alpha = \frac{1}{2}$, khi đó:
+\[
+z = \frac{1}{2}x + \frac{1}{2}y = (1, 1)^T \implies \normzero{z} = 2.
+\]
+Tuy nhiên:
+\[
+\alpha \normzero{x} + (1 - \alpha) \normzero{y} = \frac{1}{2}(1) + \frac{1}{2}(1) = 1.
+\]
+Vì $\normzero{z} = 2 > 1$, hàm $\normzero{\cdot}$ không thỏa mãn định nghĩa hàm lồi.
+\end{proof}
+
+\subsection{Bài toán Basis Pursuit (BP)}
+Kỹ thuật giải tỏa lồi (\emph{convex relaxation}) thay thế hàm $\normzero{\cdot}$ bằng bao lồi khép kín tốt nhất của nó trên quả cầu đơn vị, tức chuẩn $\ell_1$, đưa về bài toán \textbf{Basis Pursuit (BP)}:
+\begin{equation}
+    (BP) \quad \min_{x \in \R^n} \normone{x} \quad \text{s.t.} \quad Ax = b.
+\end{equation}
+Bài toán (BP) là một bài toán tối ưu lồi, có thể biến đổi tương đương về bài toán Quy hoạch tuyến tính (Linear Programming - LP):
+\begin{equation}
+    \min_{u, v \ge 0} \mathbf{1}^T(u + v) \quad \text{s.t.} \quad A(u - v) = b,
+\end{equation}
+trong đó vector $x$ được tách thành phần dương và phần âm: $x = u - v$ với $u_i = \max(x_i, 0)$ và $v_i = \max(-x_i, 0)$. Nhờ đó, bài toán có thể giải chính xác trong thời gian đa thức bằng các thuật toán Simplex hoặc phương pháp điểm trong (Interior Point Method).
+
+\subsection{Các mô hình có nhiễu: BPDN và LASSO}
+Khi tín hiệu đo bị ô nhiễm bởi vector nhiễu $e$ với năng lượng bị chặn $\normtwo{e} \le \varepsilon$, ràng buộc cứng $Ax = b$ không còn hợp lý vì tín hiệu thực không còn nằm trên siêu phẳng $Ax = b$. Ta chuyển sang bài toán \textbf{Basis Pursuit Denoising (BPDN)}:
+\begin{equation}
+    (BPDN) \quad \min_{x \in \R^n} \normone{x} \quad \text{s.t.} \quad \normtwo{Ax - b} \le \varepsilon.
+\end{equation}
+
+Mô hình không ràng buộc tương ứng thông qua kỹ thuật hàm phạt Lagrange là bài toán **LASSO** (\emph{Least Absolute Shrinkage and Selection Operator}):
+\begin{equation}
+    (LASSO) \quad \min_{x \in \R^n} F(x) \coloneqq \frac{1}{2} \normtwo{Ax - b}^2 + \lambda \normone{x}, \quad (\lambda > 0).
+\end{equation}
+
+\begin{remark}[Cảnh báo phân biệt mô hình của giảng viên]
+Không được đồng nhất BP, BPDN và LASSO với cùng một bộ tham số. Mối quan hệ giữa mức nhiễu $\varepsilon$ trong BPDN và tham số điều hòa $\lambda$ trong LASSO là một ánh xạ phụ thuộc phi tuyến tính vào dữ liệu $A, b$. Với mỗi $\varepsilon > 0$, chỉ tồn tại một giá trị $\lambda(\varepsilon)$ nhất định sao cho nghiệm của hai bài toán trùng nhau; việc lựa chọn tham số trong thực tế đòi hỏi các kỹ thuật điều chỉnh chéo (\emph{Cross-Validation}) hoặc nguyên lý bù sai số Morozov.
+\end{remark}
+
+Nếu $Ax_0 = b$, toàn bộ nghiệm khả thi của hệ đại số là $x_0 + h$ với $h \in \ker(A)$. Do đó, câu hỏi liệu BP có tìm đúng tín hiệu gốc $x^\natural$ hay không phụ thuộc hoàn toàn vào vị trí tương đối giữa không gian hạt nhân $\ker(A)$ và hình học của khối cầu chuẩn $\ell_1$.
+
+\section{Hình học của chuẩn $\ell_1$ và bản chất tạo nghiệm thưa}
+Để hiểu tại sao cực tiểu hóa chuẩn $\ell_1$ lại ưu tiên nghiệm thưa trong khi chuẩn $\ell_2$ không thể làm được, ta khảo sát hình học không gian $\R^2$.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[scale=1.4]
+        % Hình bên trái: chuẩn l1
+        \draw[->, thick, gray] (-2.2, 0) -- (2.2, 0) node[right, black] {$x_1$};
+        \draw[->, thick, gray] (0, -2.2) -- (0, 2.2) node[above, black] {$x_2$};
+        
+        \fill[blue!15] (1.2, 0) -- (0, 1.2) -- (-1.2, 0) -- (0, -1.2) -- cycle;
+        \draw[blue!80!black, very thick] (1.2, 0) -- (0, 1.2) -- (-1.2, 0) -- (0, -1.2) -- cycle;
+        
+        \draw[red!80!black, very thick] (-0.6, 1.8) -- (1.8, -0.6);
+        \fill[black] (1.2, 0) circle (2pt) node[below right] {$(1, 0)$};
+        
+        \node at (0, -1.8) {\bfseries (a) Quả cầu chuẩn $\ell_1$ (Hình thoi)};
+
+        % Hình bên phải: chuẩn l2
+        \begin{scope}[xshift=5.5cm]
+            \draw[->, thick, gray] (-2.2, 0) -- (2.2, 0) node[right, black] {$x_1$};
+            \draw[->, thick, gray] (0, -2.2) -- (0, 2.2) node[above, black] {$x_2$};
+            
+            \fill[teal!15] (0, 0) circle (1.05);
+            \draw[teal!80!black, very thick] (0, 0) circle (1.05);
+            
+            \draw[red!80!black, very thick] (-0.6, 1.8) -- (1.8, -0.6);
+            \fill[black] (0.6, 0.6) circle (2pt) node[above right] {$\left(\frac{4}{5}, \frac{2}{5}\right)$};
+            
+            \node at (0, -1.8) {\bfseries (b) Quả cầu chuẩn $\ell_2$ (Đường tròn)};
+        \end{scope}
+    \end{tikzpicture}
+    \caption{Phân tích hình học tiếp xúc giữa mặt mức chuẩn $\ell_1$ và $\ell_2$ với siêu phẳng affine $2x_1 + x_2 = 2$.}
+    \label{fig:geometric_sparsity_analysis}
+\end{figure}
+
+Trong không gian $\R^2$:
+\begin{itemize}
+    \item Mặt mức của chuẩn $\ell_1$ ($\{x \in \R^2 : |x_1| + |x_2| \le c\}$) là một hình thoi đa diện có các góc nhọn nằm chính xác trên các trục tọa độ. Khi ta tăng dần bán kính $c$ từ 0, quả cầu $\ell_1$ sẽ mở rộng cho đến khi chạm vào siêu phẳng affine $Ax = b$ tại một tiếp điểm. Vì hình thoi có các đỉnh nhọn nhô ra xa nhất dọc theo trục tọa độ, tiếp điểm đầu tiên hầu như luôn rơi vào một đỉnh. Tại đỉnh $(1, 0)$, một tọa độ bị triệt tiêu về 0, tạo thành nghiệm thưa.
+    \item Ngược lại, mặt mức của chuẩn $\ell_2$ ($\{x \in \R^2 : x_1^2 + x_2^2 \le c^2\}$) là một đường tròn trơn hoàn hảo. Tiếp điểm trực giao giữa đường tròn và đường thẳng thông thường không nằm trên trục tọa độ, khiến cả hai thành phần đều mang giá trị khác không (nghiệm đặc).
+\end{itemize}
+
+\begin{example}[Phân tích tính duy nhất nghiệm qua hai ví dụ của thầy]
+Xét hai trường hợp cụ thể:
+\begin{enumerate}
+    \item \textbf{Trường hợp 1:} Ràng buộc là $2x_1 + x_2 = 2$.
+    \begin{itemize}
+        \item Cực tiểu hóa $\normone{x}$: Tại $(1, 0)$, ta có $2(1) + 0 = 2$ và $\normone{x} = 1$. Mọi điểm khác trên đường thẳng thỏa $x_2 = 2 - 2x_1$, do đó $|x_1| + |x_2| = |x_1| + |2 - 2x_1| \ge 1$ (với dấu bằng duy nhất tại $x_1 = 1$). Vậy nghiệm duy nhất là $(1, 0)^T$ (nghiệm $1$-thưa).
+        \item Cực tiểu hóa $\normtwo{x}^2$: Giải $\min x_1^2 + (2 - 2x_1)^2 = 5x_1^2 - 8x_1 + 4$. Đạo hàm triệt tiêu tại $x_1^* = \frac{4}{5}$, suy ra $x_2^* = \frac{2}{5}$. Nghiệm $\left(\frac{4}{5}, \frac{2}{5}\right)^T$ không thưa.
+    \end{itemize}
+    \item \textbf{Trường hợp 2:} Ràng buộc là $x_1 + x_2 = 1$.
+    Đường thẳng này song song hoàn toàn với một cạnh của hình thoi chuẩn $\ell_1$. Với mọi điểm nằm trên đoạn thẳng nối $(1, 0)$ và $(0, 1)$ ($x_1 \ge 0, x_2 \ge 0, x_1 + x_2 = 1$), ta đều có $\normone{x} = x_1 + x_2 = 1$. Như vậy, bài toán có vô số nghiệm tối ưu $\ell_1$. 
+\end{enumerate}
+\end{example}
+
+\begin{remark}[Ý nghĩa quan trọng]
+Ví dụ trên chứng minh rằng chuẩn $\ell_1$ \textbf{không tự động đảm bảo nghiệm thưa là duy nhất} trong mọi trường hợp. Để đảm bảo nghiệm thưa là nghiệm tối ưu duy nhất, ma trận đo $A$ phải thỏa mãn thêm các điều kiện cách ly hình học, điều này dẫn tới các lý thuyết về Spark, NSP và RIP ở Chương 3.
+\end{remark}
+
+\section{Dưới vi phân và cơ chế giải tích của LASSO}
+Do chuẩn $\ell_1$ không khả vi tại các điểm có tọa độ bằng 0, công cụ giải tích cổ điển không thể áp dụng trực tiếp. Ta cần lý thuyết giải tích lồi hiện đại thông qua khái niệm \textbf{dưới vi phân}.
+
+\begin{definition}[Dưới gradient và Dưới vi phân]
+Cho hàm lồi $f : \R^n \to \R$. Vector $g \in \R^n$ được gọi là một dưới gradient của $f$ tại điểm $x$ nếu:
+\begin{equation}
+    f(z) \ge f(x) + g^T(z - x), \quad \forall z \in \R^n.
+    \label{eq:subgradient_def}
+\end{equation}
+Tập hợp tất cả các vector dưới gradient của $f$ tại $x$ được gọi là dưới vi phân của $f$ tại $x$, ký hiệu là $\partial f(x)$.
+\end{definition}
+
+\subsection{Dưới vi phân của hàm trị tuyệt đối và chuẩn $\ell_1$}
+Xét hàm trị tuyệt đối trên $\R$: $f(t) = |t|$.
+\begin{itemize}
+    \item Khi $t > 0$, hàm khả vi, do đó $\partial |t| = \{f'(t)\} = \{1\}$.
+    \item Khi $t < 0$, hàm khả vi, do đó $\partial |t| = \{f'(t)\} = \{-1\}$.
+    \item Tại $t = 0$: theo định nghĩa \eqref{eq:subgradient_def}, $g \in \partial |0|$ khi và chỉ khi $|z| \ge |0| + g(z - 0) \iff |z| \ge gz$ với mọi $z \in \R$. Nếu $z > 0$, ta có $z \ge gz \implies g \le 1$. Nếu $z < 0$, đặt $z = -u$ ($u > 0$), ta có $u \ge -gu \implies g \ge -1$. Do đó điều kiện tương đương là $|g| \le 1$, tức $g \in [-1, 1]$.
+\end{itemize}
+Tóm lại:
+\begin{equation}
+    \partial |t| = 
+    \begin{cases}
+    \{1\}, & \text{nếu } t > 0, \\[0.1cm]
+    [-1, 1], & \text{nếu } t = 0, \\[0.1cm]
+    \{-1\}, & \text{nếu } t < 0.
+    \end{cases}
+\end{equation}
+
+\begin{theorem}[Dưới vi phân của chuẩn $\ell_1$ trên $\R^n$]
+Với vector $x \in \R^n$, vector $g \in \partial \normone{x}$ khi và chỉ khi:
+\begin{equation}
+    g_i \in \partial |x_i|, \quad \forall i = 1, \dots, n.
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Chứng minh theo hướng dẫn của giảng viên]
+$(\implies)$ Giả sử $g \in \partial \normone{x}$, nghĩa là $\normone{z} \ge \normone{x} + g^T(z - x)$ với mọi $z \in \R^n$. Để tách riêng tọa độ thứ $i$, ta chọn $z = x + (t - x_i) e_i$, trong đó $e_i$ là vector đơn vị thứ $i$ và $t \in \R$ tùy ý. Khi đó:
+\[
+z_j = x_j \quad (\forall j \ne i), \quad \text{và} \quad z_i = t.
+\]
+Thay vào bất đẳng thức dưới vi phân:
+\[
+\sum_{j \ne i} |x_j| + |t| \ge \sum_{j \ne i} |x_j| + |x_i| + g_i(t - x_i).
+\]
+Triệt tiêu $\sum_{j \ne i} |x_j|$ ở hai vế, ta thu được:
+\[
+|t| \ge |x_i| + g_i(t - x_i), \quad \forall t \in \R.
+\]
+Theo định nghĩa, điều này tương đương với $g_i \in \partial |x_i|$. Do $i$ được chọn tùy ý, ta có $g_i \in \partial |x_i|$ với mọi $i$.
+
+$(\impliedby)$ Ngược lại, giả sử $g_i \in \partial |x_i|$ với mọi $i = 1, \dots, n$. Khi đó:
+\[
+|z_i| \ge |x_i| + g_i(z_i - x_i), \quad \forall z_i \in \R, \, \forall i = 1, \dots, n.
+\]
+Lấy tổng cả $n$ bất đẳng thức trên từ $i = 1$ đến $n$:
+\[
+\sum_{i=1}^n |z_i| \ge \sum_{i=1}^n |x_i| + \sum_{i=1}^n g_i(z_i - x_i) \iff \normone{z} \ge \normone{x} + g^T(z - x), \quad \forall z \in \R^n.
+\]
+Điều này chứng tỏ $g \in \partial \normone{x}$. Phép chứng minh hoàn tất.
+\end{proof}
+
+\subsection{Điều kiện tối ưu KKT của bài toán LASSO và cơ chế tạo nghiệm thưa}
+Xét hàm mục tiêu của LASSO:
+\begin{equation}
+    F(x) = \frac{1}{2} \normtwo{Ax - b}^2 + \lambda \normone{x}.
+\end{equation}
+Vì $F(x)$ là tổng của hàm khả vi lồi $f(x) = \frac{1}{2}\normtwo{Ax - b}^2$ và hàm lồi liên tục $g(x) = \lambda \normone{x}$, dưới vi phân của $F$ thỏa mãn quy tắc cộng:
+\begin{equation}
+    \partial F(x) = \nabla f(x) + \lambda \partial \normone{x} = A^T(Ax - b) + \lambda \partial \normone{x}.
+\end{equation}
+
+Theo định lý Fermat tổng quát cho hàm lồi, $x^*$ là cực tiểu toàn cục khi và chỉ khi:
+\begin{equation}
+    0 \in \partial F(x^*) \iff A^T(b - Ax^*) \in \lambda \partial \normone{x^*}.
+\end{equation}
+Đặt vector phần dư tại nghiệm tối ưu là $r^* = b - Ax^* \in \R^m$, và gọi $a_i$ là cột thứ $i$ của ma trận $A$. Khi đó $(A^T r^*)_i = a_i^T r^*$. Xét từng thành phần tọa độ $i$:
+\begin{equation}
+    a_i^T r^* \in \lambda \partial |x_i^*| \iff 
+    \begin{cases}
+    a_i^T r^* = \lambda \cdot \sign(x_i^*), & \text{nếu } x_i^* \ne 0, \\[0.2cm]
+    |a_i^T r^*| \le \lambda, & \text{nếu } x_i^* = 0.
+    \end{cases}
+    \label{eq:lasso_kkt_conditions}
+\end{equation}
+
+Từ hệ thức \eqref{eq:lasso_kkt_conditions}, ta suy ra ngay mệnh đề phản đảo:
+\begin{equation}
+    |a_i^T r^*| < \lambda \implies x_i^* = 0.
+\end{equation}
+\textbf{Ý nghĩa giải tích cốt lõi:} Đại lượng $a_i^T r^*$ đo lường mức độ tương quan giữa cột thuộc tính $a_i$ và phần dư hiện tại $r^*$. Nếu mức độ tương quan này nhỏ hơn ngưỡng phạt điều hòa $\lambda$, biến số thứ $i$ bị triệt tiêu chính xác về 0. Ngược lại, chỉ những cột có tương quan vượt trội chạm ngưỡng $\lambda$ mới được kích hoạt giá trị khác 0. Đây chính là bản chất toán học giải thích khả năng chọn lọc biến tự động của LASSO.
+
+\section{Toán tử co ngưỡng mềm (Soft-Thresholding)}
+\begin{theorem}[Toán tử co ngưỡng mềm từ dưới vi phân]
+Nghiệm duy nhất của bài toán cực tiểu hóa một chiều:
+\begin{equation}
+    \min_{x \in \R} \left\{ \frac{1}{2} (x - v)^2 + t |x| \right\}, \quad (t > 0)
+\end{equation}
+chính là toán tử co ngưỡng mềm $\mathcal{S}_t(v) \coloneqq \sign(v) \max(|v| - t, 0)$.
+\end{theorem}
+
+\begin{proof}
+Hàm mục tiêu $h(x) = \frac{1}{2}(x - v)^2 + t|x|$ là lồi ngặt. Điều kiện cần và đủ để $x^*$ là nghiệm cực tiểu duy nhất là $0 \in \partial h(x^*)$, tức:
+\[
+0 \in (x^* - v) + t \partial |x^*| \iff v - x^* \in t \partial |x^*|.
+\]
+Ta xét ba trường hợp:
+\begin{enumerate}
+    \item Nếu $x^* > 0 \implies \partial |x^*| = \{1\}$, ta có $v - x^* = t \implies x^* = v - t$. Do $x^* > 0$, điều này đòi hỏi $v > t$.
+    \item Nếu $x^* < 0 \implies \partial |x^*| = \{-1\}$, ta có $v - x^* = -t \implies x^* = v + t$. Do $x^* < 0$, điều này đòi hỏi $v < -t$.
+    \item Nếu $x^* = 0 \implies \partial |x^*| = [-1, 1]$, ta có $v - 0 \in [-t, t] \iff |v| \le t$.
+\end{enumerate}
+Gộp cả ba trường hợp lại, ta được nghiệm:
+\[
+x^* = \mathcal{S}_t(v) = 
+\begin{cases}
+v - t, & \text{nếu } v > t, \\
+0, & \text{nếu } |v| \le t, \\
+v + t, & \text{nếu } v < -t,
+\end{cases}
+= \sign(v) \max(|v| - t, 0).
+\]
+\end{proof}
+Toán tử này đóng vai trò nền tảng trong các thuật toán co ngưỡng lặp ở Chương 4.

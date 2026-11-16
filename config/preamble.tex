@@ -1,0 +1,135 @@
+% ==============================================================================
+% CẤU HÌNH HỆ THỐNG & PREAMBLE CHUẨN ĐỒ ÁN
+% Tương thích hoàn hảo với cả XeLaTeX (khuyên dùng trên macOS) và pdfLaTeX
+% ==============================================================================
+\usepackage{iftex}
+
+\ifXeTeX
+  \usepackage{fontspec}
+  \setmainfont{Times New Roman}
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5,T1]{fontenc}
+\fi
+
+% ==============================================================================
+% 1. VIỆT HÓA CÁC TIÊU ĐỀ MẶC ĐỊNH
+% ==============================================================================
+\newcommand{\chaptertitlename}{Chương}
+\renewcommand{\contentsname}{Mục lục}
+\renewcommand{\listfigurename}{Danh mục hình vẽ}
+\renewcommand{\listtablename}{Danh mục bảng biểu}
+\renewcommand{\bibname}{Tài liệu tham khảo}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\tablename}{Bảng}
+
+% ==============================================================================
+% 2. CĂN LỀ CHUẨN ĐỒ ÁN / BÁO CÁO KHOA HỌC
+%    Top: 2.5cm | Bottom: 2.5cm | Left: 3.5cm (đóng gáy) | Right: 2.0cm
+% ==============================================================================
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    top=25mm,
+    bottom=25mm,
+    left=35mm,
+    right=20mm,
+    includehead,
+    includefoot
+}
+
+% Giãn dòng chuẩn 1.3 & thụt lề
+\usepackage{setspace}
+\setstretch{1.3}
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{6pt}
+
+% ==============================================================================
+% 3. GÓI TOÁN HỌC & HÌNH ẢNH
+% ==============================================================================
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\graphicspath{{figures/}} % Đường dẫn đến thư mục hình ảnh
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{booktabs}
+\usepackage{array}
+
+% ==============================================================================
+% 4. ĐỊNH DẠNG TIÊU ĐỀ CHƯƠNG CHUẨN (KHÔNG CẦN CÀI THÊM GÓI PHỤ)
+% ==============================================================================
+\makeatletter
+\def\@makechapterhead#1{%
+  \vspace*{5\p@}%
+  {\parindent \z@ \centering \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+      \large\bfseries \MakeUppercase{\chaptertitlename}\ \thechapter
+      \par\nobreak
+      \vskip 8\p@
+    \fi
+    \interlinepenalty\@M
+    \LARGE \bfseries \MakeUppercase{#1}\par\nobreak
+    \vskip 22\p@
+  }}
+\def\@makeschapterhead#1{%
+  \vspace*{5\p@}%
+  {\parindent \z@ \centering \normalfont
+    \interlinepenalty\@M
+    \LARGE \bfseries \MakeUppercase{#1}\par\nobreak
+    \vskip 22\p@
+  }}
+\makeatother
+
+% ==============================================================================
+% 5. ĐỊNH DẠNG MÔI TRƯỜNG ĐỊNH LÝ / BỔ ĐỀ / BÀI TẬP
+% ==============================================================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Định lý}[chapter]
+\newtheorem{lemma}[theorem]{Bổ đề}
+\newtheorem{corollary}[theorem]{Hệ quả}
+\newtheorem{proposition}[theorem]{Mệnh đề}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Định nghĩa}
+\newtheorem{example}[theorem]{Ví dụ}
+\newtheorem{exercise}{Bài tập}[chapter]
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Nhận xét}
+
+\renewcommand{\qedsymbol}{$\blacksquare$}
+
+% ==============================================================================
+% 6. HEADER & FOOTER (FANCYHDR)
+% ==============================================================================
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{15pt}
+\fancyhead[L]{\small\slshape Đề tài 5: Khôi phục tín hiệu thưa}
+\fancyhead[R]{\small\slshape\nouppercase{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+% Trang đầu chương không hiện header
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+    \renewcommand{\footrulewidth}{0pt}
+}
+
+% ==============================================================================
+% 7. HYPERLINK & BOOKMARK
+% ==============================================================================
+\usepackage[
+    colorlinks=true,
+    linkcolor=blue!75!black,
+    citecolor=teal!80!black,
+    urlcolor=blue!60!black,
+    bookmarksnumbered=true,
+    pdfstartview=FitH
+]{hyperref}
+\usepackage{bookmark}

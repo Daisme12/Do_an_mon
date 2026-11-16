@@ -1,0 +1,199 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amssymb,amsthm,geometry,tikz,hyperref,fancyhdr,enumitem}
+\geometry{margin=2.5cm}\setlength{\parskip}{7pt}
+\newtheorem{theorem}{Định lý}[section]\newtheorem{lemma}[theorem]{Bổ đề}
+\newcommand{\R}{\mathbb R}\newcommand{\supp}{\operatorname{supp}}\newcommand{\spark}{\operatorname{spark}}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{Đề tài 5: Khôi phục tín hiệu thưa}\fancyfoot[C]{\thepage}
+\begin{document}
+\begin{titlepage}\centering\vspace*{3cm}{\Large HƯỚNG DẪN ĐỒ ÁN TOÁN ỨNG DỤNG\par}\vspace{1.5cm}{\Huge\bfseries ĐỀ TÀI 5\par}\vspace{1cm}{\LARGE KHÔI PHỤC TÍN HIỆU THƯA BẰNG CỰC TIỂU HÓA CHUẨN $\ell_1$\par}\vspace{1.5cm}{\large Cơ sở lý thuyết -- Điều kiện khôi phục -- Thuật toán -- Hội tụ\par}\vfill{\large Dành cho sinh viên mới nghiên cứu -- 2026\par}\end{titlepage}
+\tableofcontents\clearpage
+\section{Lời giới thiệu}
+Trong nhiều ứng dụng, ta chỉ có thể thu ít phép đo hơn số thành phần của tín hiệu. Chẳng hạn, máy chụp ảnh y khoa cần giảm thời gian đo, cảm biến cần tiết kiệm năng lượng, hoặc hệ thống truyền thông chỉ có băng thông hạn chế. Bài toán khôi phục tín hiệu đặt câu hỏi: từ các phép đo ít ỏi và có thể nhiễu, liệu có tìm lại được tín hiệu ban đầu?
+
+Hệ $Ax=b$ với $A\in\R^{m\times n}$ và $m<n$ thường có vô số nghiệm. Thông tin cấu trúc như tính thưa cho phép ta tìm một nghiệm có ý nghĩa. Tối ưu chuẩn $\ell_1$ là cách thay thế lồi cho bài toán đếm số tọa độ khác không.
+
+Mục tiêu đề tài: hiểu tín hiệu và phép đo; xây dựng BP, BPDN, LASSO; chứng minh điều kiện khôi phục; suy ra các thuật toán; tự thiết kế thực nghiệm. Sinh viên phải tự thực hiện kết quả số, không sao chép bảng số liệu có sẵn.
+\clearpage
+\section{Tín hiệu là gì và vì sao cần khôi phục?}
+Tín hiệu là hàm mang thông tin: âm thanh $s(t)$, ảnh xám $I(u,v)$, video $V(u,v,t)$. Lấy mẫu tại $t_j=jT_s$ tạo dãy $x_j=s(jT_s)$, có thể xếp thành vector $x\in\R^n$. Ảnh $p\times q$ cũng có thể vector hóa thành phần tử $\R^{pq}$.
+
+\begin{center}\begin{tikzpicture}[>=stealth]\node[draw] (a) at (0,0) {$s(t)$};\node[draw] (b) at (4,0) {$x\in\R^n$};\node[draw] (c) at (8,0) {$b=Ax+e$};\draw[->] (a)--node[above]{lấy mẫu}(b);\draw[->](b)--node[above]{đo nén}(c);\end{tikzpicture}\end{center}
+
+Cần khôi phục khi phép đo thiếu, có nhiễu, hoặc chỉ quan sát gián tiếp qua một hệ tuyến tính. Phép đo nén $b_i=\sum_j a_{ij}x_j+e_i$ không nhất thiết là việc chọn một số tọa độ của $x$.
+
+Nếu $x=\Psi\theta$ với $\theta$ thưa, ta giải bài toán trên $\theta$ từ $b=A\Psi\theta+e$. Đây là cách xử lý tín hiệu không thưa trong miền thời gian nhưng có thể thưa trong miền Fourier hoặc wavelet.
+\clearpage
+\section{Chuẩn và khái niệm thưa}
+Định nghĩa $\|x\|_0=\#\{i:x_i\ne0\}$, $\|x\|_1=\sum_i|x_i|$, $\|x\|_2=(\sum_i x_i^2)^{1/2}$. Đại lượng $\|x\|_0$ không phải chuẩn. Vector $x$ gọi là $k$-thưa nếu $\|x\|_0\le k$.
+
+\begin{lemma}Với mọi $x\in\R^n$, $\|x\|_2\le\|x\|_1\le\sqrt n\|x\|_2$.\end{lemma}
+\begin{proof}Bình phương tổng $\sum_i|x_i|$ cho bất đẳng thức thứ nhất; Cauchy--Schwarz cho bất đẳng thức thứ hai.\end{proof}
+
+Ví dụ $x=(0,3,0,-2,0)^T$ có $\|x\|_0=2$, $\|x\|_1=5$, $\|x\|_2=\sqrt{13}$. Tín hiệu thực tế thường chỉ thưa xấp xỉ: nhiều hệ số rất nhỏ, ít hệ số lớn. Đặt $\sigma_k(x)_1=\inf_{\|z\|_0\le k}\|x-z\|_1$ là sai số xấp xỉ $k$-thưa tốt nhất.
+
+Bài tập: chứng minh vector xấp xỉ tốt nhất nhận được bằng cách giữ lại $k$ tọa độ có trị tuyệt đối lớn nhất.
+\clearpage
+\section{Các mô hình tối ưu}
+Mô hình quan sát là $b=Ax^\natural+e$ với $m<n$. Khi không nhiễu, ta xét
+\[(P_0)\quad\min_x\|x\|_0\quad\text{s.t. }Ax=b,\qquad (BP)\quad\min_x\|x\|_1\quad\text{s.t. }Ax=b.\]
+Nếu biết $\|e\|_2\le\varepsilon$, xét
+\[(BPDN)\quad\min_x\|x\|_1\quad\text{s.t. }\|Ax-b\|_2\le\varepsilon.\]
+Dạng phạt là
+\[(LASSO)\quad\min_x F(x)=\frac12\|Ax-b\|_2^2+\lambda\|x\|_1,\quad\lambda>0.\]
+Không được đồng nhất BP, BPDN và LASSO với cùng tham số: quan hệ giữa chúng phụ thuộc vào dữ liệu và các điều kiện tối ưu. $P_0$ khó vì có thể phải xét $\binom nk$ tập vị trí khác không. BP là bài toán lồi có thể giải hiệu quả hơn.
+
+Nếu $Ax_0=b$, mọi nghiệm là $x_0+h$ với $h\in\ker A$. Do đó việc tìm đúng $x^\natural$ phụ thuộc vào hình học của hạt nhân và tập vector thưa.
+\clearpage
+\section{Hình học của chuẩn một}
+Trong $\R^2$, tập $|x_1|+|x_2|\le1$ là hình thoi; tập $x_1^2+x_2^2\le1$ là hình tròn. Đỉnh hình thoi nằm trên trục tọa độ, nên khi đường thẳng đo tiếp xúc tại đỉnh, nghiệm có một tọa độ bằng 0.
+\begin{center}\begin{tikzpicture}[scale=1.15]\draw[->](-1.3,0)--(1.3,0);\draw[->](0,-1.3)--(0,1.3);\fill[blue!10](1,0)--(0,1)--(-1,0)--(0,-1)--cycle;\draw[blue,thick](1,0)--(0,1)--(-1,0)--(0,-1)--cycle;\begin{scope}[xshift=4cm]\draw[->](-1.3,0)--(1.3,0);\draw[->](0,-1.3)--(0,1.3);\draw[teal,thick](0,0)circle(1);\end{scope}\node at (0,-1.55){$\ell_1$};\node at (4,-1.55){$\ell_2$};\end{tikzpicture}\end{center}
+
+Ví dụ với $2x_1+x_2=2$, tối thiểu $|x_1|+|x_2|$ cho nghiệm $(1,0)$; tối thiểu $x_1^2+x_2^2$ cho $(4/5,2/5)$. Nhưng với $x_1+x_2=1$, mọi điểm trên đoạn không âm đều tối ưu $\ell_1$, nên chuẩn một không tự bảo đảm nghiệm duy nhất.
+\clearpage
+\section{Dưới vi phân và điều kiện tối ưu}
+Với hàm lồi $f$, $g\in\partial f(x)$ khi $f(z)\ge f(x)+g^T(z-x)$ với mọi $z$. Với hàm trị tuyệt đối,
+\[\partial|t|=\begin{cases}\{1\},&t>0,\\[-0.5ex] [-1,1],&t=0,\\\{-1\},&t<0.\end{cases}\]
+Tại $0$, điều kiện $|z|\ge gz$ với mọi $z$ tương đương $|g|\le1$. Với chuẩn một, $g\in\partial\|x\|_1$ khi và chỉ khi $g_i\in\partial|x_i|$ với mọi $i$. Chứng minh: chọn $z=x+(t-x_i)e_i$ trong định nghĩa để tách từng tọa độ; chiều ngược lại thu được bằng cách cộng các bất đẳng thức dưới gradient.
+
+Đối với LASSO, $\partial F(x)=A^T(Ax-b)+\lambda\partial\|x\|_1$. Điều kiện tối ưu cần và đủ là $0\in\partial F(x^*)$. Đặt $r^*=b-Ax^*$, cột $i$ của $A$ là $a_i$, suy ra
+\[x_i^*>0\Rightarrow a_i^Tr^*=\lambda,\quad x_i^*<0\Rightarrow a_i^Tr^*=-\lambda,\quad x_i^*=0\Rightarrow |a_i^Tr^*|\le\lambda.\]
+Do đó $|a_i^Tr^*|<\lambda\Rightarrow x_i^*=0$. Đây là cơ chế giải tích tạo nghiệm thưa.
+\clearpage
+\section{Tính duy nhất và spark}
+$\spark(A)$ là số cột nhỏ nhất của $A$ phụ thuộc tuyến tính.
+\begin{theorem}Mọi vector $k$-thưa được xác định duy nhất trong lớp các vector $k$-thưa từ phép đo $Ax$ khi và chỉ khi $\spark(A)>2k$.\end{theorem}
+\begin{proof}Nếu $Ax=Az$ với $x,z$ đều $k$-thưa thì $h=x-z\in\ker A$, $\|h\|_0\le2k$. Điều kiện spark buộc $h=0$. Ngược lại, nếu spark không lớn hơn $2k$, tồn tại $0\ne h\in\ker A$ với không quá $2k$ tọa độ khác không. Chia hỗ trợ của $h$ thành hai tập, mỗi tập có không quá $k$ phần tử, viết $h=x-z$ với $x,z$ đều $k$-thưa; khi đó $Ax=Az$ nhưng $x\ne z$.\end{proof}
+
+Vì $\spark(A)\le m+1$ khi $m<n$, điều kiện trên đòi hỏi $m\ge2k$. Tuy nhiên, đây mới là tính duy nhất trong lớp nghiệm thưa; chưa bảo đảm BP sẽ tìm ra nghiệm đó.
+
+Bài tập: tính spark của $A=\begin{pmatrix}1&0&1\\0&1&1\end{pmatrix}$ và nhận xét khả năng khôi phục mọi vector 1-thưa.
+\clearpage
+\section{Tính chất không gian hạt nhân NSP}
+Ma trận $A$ thỏa NSP bậc $k$ nếu với mọi $0\ne h\in\ker A$ và mọi $S$ có $|S|\le k$,
+\[\|h_S\|_1<\|h_{S^c}\|_1.\]
+\begin{theorem}NSP bậc $k$ là điều kiện cần và đủ để Basis Pursuit khôi phục chính xác mọi vector $k$-thưa.\end{theorem}
+\begin{proof}Chiều đủ: với $x^\natural$ có hỗ trợ $S$, nghiệm khả thi khác là $x^\natural+h$, $0\ne h\in\ker A$. Khi đó
+\[\|x^\natural+h\|_1\ge\|x^\natural\|_1-\|h_S\|_1+\|h_{S^c}\|_1>\|x^\natural\|_1.\]
+Chiều cần: nếu NSP sai, có $0\ne h\in\ker A$ và $|S|\le k$ sao cho $\|h_S\|_1\ge\|h_{S^c}\|_1$. Đặt $x^\natural=-h_S$ và $z=h_{S^c}$; ta có $Az=Ax^\natural$, trong khi $\|z\|_1\le\|x^\natural\|_1$. Do đó BP không khôi phục duy nhất $x^\natural$.\end{proof}
+
+NSP là kết quả lý thuyết trung tâm vì nối trực tiếp tính chất của $A$ với hiệu quả của tối ưu chuẩn một. Khó khăn là kiểm tra NSP cho ma trận lớn không dễ; vì vậy ta tìm các điều kiện đủ thuận tiện hơn.
+\clearpage
+\section{Mutual coherence và điều kiện đủ}
+Giả sử các cột $a_i$ của $A$ có chuẩn Euclid bằng 1. Đặt
+\[\mu(A)=\max_{i\ne j}|a_i^Ta_j|.\]
+Đại lượng này đo mức tương quan lớn nhất giữa hai cột. Nếu $\mu(A)$ nhỏ, các cột khó thay thế nhau trong biểu diễn tín hiệu.
+
+\begin{theorem}Nếu $k<\frac12(1+1/\mu(A))$ thì BP khôi phục đúng mọi vector $k$-thưa (quy ước trường hợp $\mu=0$ riêng).\end{theorem}
+\begin{proof}Cho $h\in\ker A$, $h\ne0$. Từ $A^TAh=0$, tọa độ $i$ cho $h_i=-\sum_{j\ne i}(a_i^Ta_j)h_j$. Do đó $|h_i|\le\mu(\|h\|_1-|h_i|)$ và $(1+\mu)|h_i|\le\mu\|h\|_1$. Với $|S|\le k$, suy ra $\|h_S\|_1\le k\mu\|h\|_1/(1+\mu)$. Điều kiện $2k\mu<1+\mu$ cho $\|h_S\|_1<\|h\|_1/2$, tức NSP.\end{proof}
+
+Đây là điều kiện đủ, không phải điều kiện cần. Khi các cột tương quan mạnh, điều kiện có thể thất bại dù một số tín hiệu vẫn khôi phục được.
+\clearpage
+\section{RIP và ý nghĩa hình học}
+Ma trận $A$ thỏa tính chất đẳng cự hạn chế (RIP) bậc $k$ với hằng số $\delta_k\in[0,1)$ nếu
+\[(1-\delta_k)\|h\|_2^2\le\|Ah\|_2^2\le(1+\delta_k)\|h\|_2^2\]
+cho mọi vector $k$-thưa $h$. RIP nói rằng $A$ gần như bảo toàn độ dài của các vector thưa, dù làm giảm chiều từ $n$ xuống $m$.
+
+Nếu $\delta_{2k}<1$, thì hai vector $k$-thưa khác nhau không thể có cùng ảnh qua $A$: hiệu của chúng là $2k$-thưa và không thể thuộc hạt nhân. Vì vậy RIP bậc $2k$ đủ để bảo đảm tính duy nhất trong lớp vector $k$-thưa.
+
+Một kết quả sâu hơn của lý thuyết Compressed Sensing: điều kiện đủ $\delta_{2k}<\sqrt2-1$ bảo đảm khôi phục chính xác bằng BP và chặn sai số ổn định cho BPDN, với các hằng số thích hợp. Chứng minh đầy đủ cần phân hoạch các hệ số theo độ lớn và các ước lượng nón--ống; sinh viên có thể đọc thêm tài liệu tham khảo, không nên xem điều kiện này là cần.
+
+\textbf{Thảo luận.} So sánh spark, NSP và RIP: spark nói về duy nhất, NSP nói về thành công của BP, RIP giúp xây dựng các bảo đảm ổn định dưới nhiễu.
+\clearpage
+\section{Khôi phục ổn định khi có nhiễu}
+Giả sử $b=Ax^\natural+e$, $\|e\|_2\le\varepsilon$. BPDN giải
+\[\widehat x\in\arg\min_x\|x\|_1\quad\text{s.t. }\|Ax-b\|_2\le\varepsilon.\]
+Do $x^\natural$ khả thi, $\|\widehat x\|_1\le\|x^\natural\|_1$. Hơn nữa, từ bất đẳng thức tam giác,
+\[\|A(\widehat x-x^\natural)\|_2\le\|A\widehat x-b\|_2+\|b-Ax^\natural\|_2\le2\varepsilon.\]
+Bất đẳng thức trên chỉ kiểm soát sai số trong miền đo. Muốn suy ra sai số $\|\widehat x-x^\natural\|_2$, phải bổ sung điều kiện lên $A$ như RIP hoặc NSP vững.
+
+Dưới các giả thiết RIP đủ mạnh, có chặn điển hình
+\[\|\widehat x-x^\natural\|_2\le C_0\frac{\sigma_k(x^\natural)_1}{\sqrt k}+C_1\varepsilon.\]
+Số hạng thứ nhất đo mức độ không thưa chính xác; số hạng thứ hai đo tác động nhiễu. Các hằng số phụ thuộc vào điều kiện ma trận đo, không phải hằng số phổ quát bất kỳ.
+
+Bài tập: chứng minh ước lượng $2\varepsilon$ và giải thích vì sao nếu $A$ có hạt nhân lớn, chỉ riêng ước lượng này chưa đủ khống chế $\|\widehat x-x^\natural\|_2$.
+\clearpage
+\section{Thuật toán ISTA cho LASSO}
+Với $F(x)=f(x)+g(x)$, $f(x)=\frac12\|Ax-b\|_2^2$, $g(x)=\lambda\|x\|_1$, ta có $\nabla f(x)=A^T(Ax-b)$ và gradient Lipschitz với $L=\|A\|_2^2$. Bổ đề giảm cho $f(z)\le f(x)+\nabla f(x)^T(z-x)+\frac L2\|z-x\|_2^2$.
+
+ISTA chọn $x^{k+1}$ tối thiểu hóa chặn trên cộng với $g$, dẫn đến
+\[x^{k+1}=S_{\lambda/L}\left(x^k-\frac1L A^T(Ax^k-b)\right),\]
+trong đó $S_t(v)_i=\operatorname{sign}(v_i)\max\{|v_i|-t,0\}$. Phép ngưỡng mềm đưa các tọa độ nhỏ về 0 chính xác.
+
+\begin{theorem}Nếu $L>0$ và nghiệm tối ưu $x^*$ tồn tại, ISTA với bước $1/L$ thỏa $F(x^k)-F(x^*)\le L\|x^0-x^*\|_2^2/(2k)$, $k\ge1$.\end{theorem}
+\begin{proof}[Phác thảo chứng minh có hướng dẫn]Điều kiện tối ưu của bước proximal và bổ đề giảm cho bất đẳng thức ba điểm
+\[F(x^{k+1})-F(u)\le\frac L2(\|x^k-u\|_2^2-\|x^{k+1}-u\|_2^2).\]
+Lấy $u=x^*$, cộng theo $k$ để được tổng các sai số bị chặn. Vì giá trị mục tiêu không tăng, sai số tại bước $k$ không vượt trung bình các sai số trước, suy ra chặn $O(1/k)$.\end{proof}
+
+Sinh viên cần tự kiểm tra từng bước của bất đẳng thức ba điểm, thay vì chỉ ghi nhớ tốc độ hội tụ.
+\clearpage
+\section{FISTA, GPSR và các lựa chọn thuật toán}
+FISTA sử dụng bước proximal giống ISTA nhưng thêm ngoại suy:
+\[x^{k+1}=S_{\lambda/L}(y^k-L^{-1}A^T(Ay^k-b)),\]
+\[t_{k+1}=\frac{1+\sqrt{1+4t_k^2}}2,\quad y^{k+1}=x^{k+1}+\frac{t_k-1}{t_{k+1}}(x^{k+1}-x^k).\]
+Với $t_0=1$ và các giả thiết chuẩn, FISTA cho chặn giá trị hàm $F(x^k)-F^*\le2L\|x^0-x^*\|_2^2/(k+1)^2$. Đây là tốc độ giá trị hàm; không tự suy ra mọi biến thể ngoại suy đều có dãy lặp hội tụ.
+
+Một hướng khác là GPSR: viết $x=u-v$ với $u,v\ge0$. Khi đó
+\[\min_{u,v\ge0}\frac12\|A(u-v)-b\|_2^2+\lambda\mathbf1^T(u+v).\]
+Đây là bài toán trơn có ràng buộc không âm. GPSR sử dụng bước gradient chiếu, có thể chọn độ dài bước Barzilai--Borwein. Để giải thích chính xác GPSR, sinh viên nên đọc Figueiredo--Nowak--Wright (2007).
+
+\textbf{So sánh định tính.} ISTA đơn giản; FISTA tăng tốc theo chặn lý thuyết; GPSR tận dụng cấu trúc ràng buộc; Basis Pursuit không nhiễu có thể giải bằng lập trình tuyến tính hoặc ADMM. Chọn thuật toán tùy kích thước và phép nhân $A,A^T$.
+\clearpage
+\section{ADMM cho Basis Pursuit}
+Xét $\min_x\|x\|_1$ với $Ax=b$. Tách biến $x=z$ và đặt $C=\{x:Ax=b\}$. Bài toán trở thành $\min_{x,z}\iota_C(x)+\|z\|_1$ với $x=z$, trong đó $\iota_C$ là hàm chỉ thị của tập khả thi.
+
+ADMM dạng scaled với $\rho>0$:
+\[x^{k+1}=P_C(z^k-u^k),\quad z^{k+1}=S_{1/\rho}(x^{k+1}+u^k),\quad u^{k+1}=u^k+x^{k+1}-z^{k+1}.\]
+Nếu $A$ có hạng hàng đầy đủ, phép chiếu lên $C$ được tính bởi
+\[P_C(v)=v-A^T(AA^T)^{-1}(Av-b).\]
+Đây là công thức suy từ điều kiện Lagrange của $\min_x\frac12\|x-v\|_2^2$ với $Ax=b$. Nếu $A$ không có hạng hàng đầy đủ, cần dùng giả nghịch đảo và kiểm tra tính khả thi.
+
+Phần dư nguyên thủy $r^k=x^k-z^k$ đo mức vi phạm ràng buộc tách biến; phần dư đối ngẫu $s^k=\rho(z^k-z^{k-1})$ theo dõi thay đổi biến phụ. Với giả thiết lồi, nghiệm yên ngựa tồn tại và các bài toán con được giải chính xác, ADMM có các bảo đảm hội tụ tiêu chuẩn. Sinh viên cần trình bày rõ giả thiết khi sử dụng kết quả này.
+\clearpage
+\section{Hướng dẫn thực nghiệm: sinh viên tự làm}
+\textbf{Thí nghiệm 1:} Sinh tín hiệu $k$-thưa $x^\natural\in\R^n$ bằng cách chọn ngẫu nhiên hỗ trợ và biên độ. Sinh ma trận Gaussian rồi chuẩn hóa cột. Tạo $b=Ax^\natural$. Thay đổi $m,k$; đánh giá sai số tương đối $\|\widehat x-x^\natural\|_2/\max\{1,\|x^\natural\|_2\}$.
+
+\textbf{Thí nghiệm 2:} Thêm nhiễu Gaussian và thay đổi độ lệch chuẩn. Giải BPDN hoặc LASSO, khảo sát ảnh hưởng của $\varepsilon$ hoặc $\lambda$ đến sai số và số hệ số được giữ.
+
+\textbf{Thí nghiệm 3:} So sánh ISTA và FISTA trên cùng dữ liệu, cùng tiêu chuẩn dừng. Vẽ $F(x^k)-F_{\mathrm{ref}}$ theo số vòng lặp và theo thời gian; $F_{\mathrm{ref}}$ phải được mô tả cách ước lượng, không giả định biết trước tối ưu chính xác.
+
+\textbf{Thí nghiệm 4:} Thay đổi tương quan giữa các cột của $A$, so sánh tỷ lệ khôi phục đúng và mutual coherence. Giải thích vì sao cột gần trùng nhau gây khó khăn.
+
+\textbf{Thí nghiệm 5:} Chọn ảnh xám nhỏ, biến đổi wavelet, khảo sát tỷ lệ hệ số nhỏ và chất lượng ảnh tái tạo. Báo cáo PSNR và các hạn chế của giả thiết thưa xấp xỉ.
+
+Không có bảng số hay đồ thị kết quả trong tài liệu này: sinh viên phải tự chạy, tự ghi môi trường, seed, thông số và giải thích số liệu.
+\clearpage
+\section{Yêu cầu báo cáo và câu hỏi tự kiểm tra}
+Báo cáo cuối kỳ cần gồm: lời giới thiệu; kiến thức chuẩn bị; mô hình; ít nhất hai chứng minh hoàn chỉnh; thuật toán và mã nguồn; thiết kế thí nghiệm; kết quả tự chạy; thảo luận giới hạn; kết luận; tài liệu tham khảo.
+
+\begin{enumerate}
+\item Chứng minh tính lồi của $\|x\|_1$ và tính không lồi của $\|x\|_0$.
+\item Tại sao $m<n$ không đồng nghĩa không thể khôi phục tín hiệu thưa?
+\item Phân biệt spark, NSP và RIP bằng một câu cho mỗi khái niệm.
+\item Chứng minh NSP đủ để BP khôi phục đúng vector $k$-thưa.
+\item Tại sao $|a_i^Tr^*|<\lambda$ buộc hệ số LASSO thứ $i$ bằng 0?
+\item Chứng minh công thức ngưỡng mềm từ điều kiện dưới vi phân.
+\item Nêu lý do cần so sánh theo thời gian chạy chứ không chỉ số vòng lặp.
+\item Khi có nhiễu, vì sao khôi phục đúng tuyệt đối không còn là mục tiêu hợp lý?
+\end{enumerate}
+
+\textbf{Tiêu chí đánh giá đề xuất:} tính đúng toán học 40\%; giải thích dễ hiểu 20\%; thực nghiệm tự làm và tái lập 25\%; trình bày và tham khảo 15\%. Các tỷ lệ này chỉ là gợi ý để giảng viên điều chỉnh.
+\clearpage
+\section{Kết luận và hướng phát triển}
+Tính thưa làm giảm độ phức tạp cấu trúc của tín hiệu, nhưng không tự động giải quyết bài toán thiếu phương trình. Điều kiện spark mô tả tính duy nhất trong lớp thưa; NSP bảo đảm Basis Pursuit tìm đúng nghiệm; RIP cung cấp công cụ phân tích tính ổn định. Chuẩn $\ell_1$ vừa lồi vừa có dưới vi phân rộng tại 0, nhờ đó khuyến khích các hệ số bằng 0.
+
+Sinh viên nên đặc biệt phân biệt ba câu hỏi: \emph{có xác định duy nhất không?}, \emph{thuật toán có tìm được không?}, và \emph{kết quả có ổn định dưới nhiễu không?} Ba câu hỏi đòi hỏi các giả thiết khác nhau.
+
+Các hướng mở rộng gồm: khôi phục ảnh bằng wavelet, tối ưu tổng biến thiên, tín hiệu thưa theo nhóm, phép đo phi tuyến và các thuật toán bậc nhất tăng tốc. Phần thực nghiệm phải được thực hiện độc lập, có kiểm tra sai số và ghi rõ giới hạn của thiết lập số.
+\clearpage
+\section{Tài liệu tham khảo}
+\begin{enumerate}
+\item E. J. Candès, J. Romberg, T. Tao (2006), ``Stable signal recovery from incomplete and inaccurate measurements,'' \emph{Communications on Pure and Applied Mathematics}.
+\item D. L. Donoho (2006), ``Compressed sensing,'' \emph{IEEE Transactions on Information Theory}.
+\item S. Foucart, H. Rauhut (2013), \emph{A Mathematical Introduction to Compressive Sensing}, Birkhäuser.
+\item A. Beck, M. Teboulle (2009), ``A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems,'' \emph{SIAM Journal on Imaging Sciences}.
+\item M. A. T. Figueiredo, R. D. Nowak, S. J. Wright (2007), ``Gradient Projection for Sparse Reconstruction,'' \emph{IEEE Journal of Selected Topics in Signal Processing}.
+\item S. Boyd et al. (2011), ``Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers,'' \emph{Foundations and Trends in Machine Learning}.
+\item Nguyễn Văn Điền, Hồ Phước Tiến, Nguyễn Tấn Hưng (2016), ``Khôi phục tín hiệu, hình ảnh theo phương pháp lấy mẫu nén,'' tài liệu do giảng viên cung cấp.
+\end{enumerate}
+\end{document}
