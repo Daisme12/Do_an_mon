@@ -80,7 +80,7 @@ và từ đó suy ra tốc độ hội tụ giá trị hàm:
 \end{equation}
 \end{theorem}
 
-\begin{proof}[Kiểm tra từng bước chứng minh theo đúng yêu cầu đồ án]
+\begin{proof}
 \textbf{Bước 1: Điều kiện tối ưu của bài toán con.}
 Điểm $x^{k+1}$ cực tiểu hóa hàm lồi khả vi suy rộng:
 \[
@@ -205,6 +205,23 @@ Quy trình cập nhật luân phiên của ADMM:
     u^{k+1} &= u^k + x^{k+1} - z^{k+1}. \label{eq:admm_u_update}
 \end{align}
 
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[>=stealth, node distance=1.8cm,
+        stepbox/.style={rectangle, draw=blue!80!black, fill=blue!6, thick, rounded corners, minimum height=3em, minimum width=3.8cm, align=center, font=\footnotesize}]
+        
+        \node [stepbox] (xup) {\textbf{1. Cập nhật $x^{k+1}$}\\Chiếu trực giao $\mathcal{P}_C(z^k - u^k)$\\(Đảm bảo $Ax^{k+1} = b$)};
+        \node [stepbox, right=1.3cm of xup, draw=teal!80!black, fill=teal!6] (zup) {\textbf{2. Cập nhật $z^{k+1}$}\\Co ngưỡng mềm $\mathcal{S}_{1/\rho}(x^{k+1} + u^k)$\\(Thúc đẩy tính thưa $\ell_1$)};
+        \node [stepbox, below=1.2cm of $(xup)!0.5!(zup)$, draw=orange!80!black, fill=orange!8] (uup) {\textbf{3. Cập nhật đối ngẫu $u^{k+1}$}\\$u^{k+1} = u^k + x^{k+1} - z^{k+1}$\\(Đồng bộ ràng buộc $x = z$)};
+        
+        \draw [->, very thick, blue!80!black] (xup) -- (zup);
+        \draw [->, very thick, teal!80!black] (zup.south) |- (uup.east);
+        \draw [->, very thick, orange!80!black] (uup.west) -| node [left, pos=0.75, font=\scriptsize] {Lặp lại} (xup.south);
+    \end{tikzpicture}
+    \caption{Sơ đồ chu trình cập nhật luân phiên ba bước của thuật toán ADMM giải bài toán Basis Pursuit.}
+    \label{fig:admm_cycle}
+\end{figure}
+
 \begin{theorem}[Công thức phép chiếu trực giao lên tập nghiệm affine]
 Nếu ma trận $A \in \R^{m \times n}$ có các hàng độc lập tuyến tính (hạng hàng đầy đủ $\rank(A) = m$), phép chiếu trực giao của một điểm $v \in \R^n$ lên tập $C = \{x \in \R^n : Ax = b\}$ được tính bởi:
 \begin{equation}
@@ -262,8 +279,8 @@ Phần dư nguyên thủy $r^k \coloneqq x^k - z^k$ (đo mức vi phạm ràng b
 \midrule
 ISTA & LASSO & $\mathcal{O}(1/k)$ & Rất đơn giản, bộ nhớ thấp; tốc độ hội tụ chậm. \\
 FISTA & LASSO & $\mathcal{O}(1/k^2)$ (tối ưu) & Rất nhanh; có dao động nhỏ quanh nghiệm. \\
-GPSR & LASSO ràng buộc & Tuyến tính cục bộ & Tận dụng cấu trúc biến; bước Barzilai--Borwein hiệu quả. \\
-ADMM & Basis Pursuit (chính xác) & Siêu tuyến tính thực nghiệm & Giải chính xác đẳng thức $Ax = b$; cần phân tích $(AA^T)^{-1}$. \\
+GPSR & LASSO ràng buộc & Không có chặn tổng quát; nhanh trong thực nghiệm & Tận dụng cấu trúc biến; bước Barzilai--Borwein hiệu quả. \\
+ADMM & Basis Pursuit (chính xác) & $\mathcal{O}(1/k)$ (ergodic); tuyến tính khi có thêm giả thiết & Giải chính xác đẳng thức $Ax = b$; cần phân tích Cholesky $AA^T$. \\
 \bottomrule
 \end{tabular}
 \end{table}

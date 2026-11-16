@@ -81,7 +81,7 @@ Cho vector $x = (x_1, \dots, x_n)^T \in \R^n$. Ta định nghĩa:
 \end{definition}
 
 \begin{remark}[Bản chất phi chuẩn của $\ell_0$]
-Đại lượng $\normzero{x}$ không phải là một chuẩn toán học thực sự vì nó vi phạm tính chất thuần nhất tuyệt đối: với mọi hằng số vô hướng $\alpha \ne 0, 1$, ta có:
+Đại lượng $\normzero{x}$ không phải là một chuẩn toán học thực sự vì nó vi phạm tính chất thuần nhất tuyệt đối: với mọi vector $x \ne 0$ và mọi hằng số vô hướng $\alpha \ne 0$ có $|\alpha| \ne 1$, ta có:
 \[
 \normzero{\alpha x} = \normzero{x} \ne |\alpha| \normzero{x}.
 \]
@@ -119,6 +119,24 @@ Do tích $|x_i| |x_j| \ge 0$, ta có $\normone{x}^2 \ge \normtwo{x}^2$. Lấy c�
 \]
 Dấu bằng xảy ra khi và chỉ khi $u$ tỷ lệ với $v$, tức $|x_1| = |x_2| = \dots = |x_n|$.
 \end{proof}
+
+Bảng \ref{tab:norm_comparison} tóm tắt các đặc trưng toán học cơ bản của ba đại lượng đo độ lớn vector được sử dụng xuyên suốt đồ án:
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{So sánh các tính chất toán học và tối ưu hóa của chuẩn $\ell_0$, $\ell_1$ và $\ell_2$.}
+\label{tab:norm_comparison}
+\begin{tabular}{p{2.0cm}p{2.4cm}p{2.2cm}p{2.6cm}p{4.1cm}}
+\toprule
+\textbf{Đại lượng} & \textbf{Công thức} & \textbf{Tính lồi} & \textbf{Tính khả vi} & \textbf{Vai trò trong khôi phục} \\
+\midrule
+$\normzero{x}$ (giả chuẩn) & $\sum_{i=1}^n \mathbf{1}_{\{x_i \ne 0\}}$ & Không lồi & Gián đoạn & Đo trực tiếp độ thưa; bài toán tối ưu là NP-hard. \\[0.15cm]
+$\normone{x}$ (chuẩn $\ell_1$) & $\sum_{i=1}^n |x_i|$ & Lồi (không ngặt) & Không khả vi tại $x_i = 0$ & Bao lồi tốt nhất thúc đẩy nghiệm thưa; giải được trong thời gian đa thức. \\[0.15cm]
+$\normtwo{x}$ (chuẩn $\ell_2$) & $\left(\sum_{i=1}^n x_i^2\right)^{1/2}$ & Lồi ngặt (bình phương) & Khả vi vô hạn ($x \ne 0$) & Đo năng lượng sai số; tạo nghiệm đặc (không thưa). \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Tính thưa xấp xỉ và sai số xấp xỉ tốt nhất}
 Trong thực tế, do nhiễu và bản chất liên tục của thế giới thực, các tín hiệu vật lý hiếm khi có các tọa độ bằng 0 chính xác tuyệt đối, mà thường có dạng \textbf{thưa xấp xỉ} (\emph{approximately sparse} hay \emph{compressible}): gồm một số ít hệ số lớn mang phần lớn năng lượng, và rất nhiều hệ số nhỏ suy giảm nhanh về 0 (tuân theo quy luật lũy thừa).

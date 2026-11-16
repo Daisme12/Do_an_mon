@@ -189,11 +189,11 @@ Chương này trình bày chi tiết quy trình thiết kế và thực nghiệm
 \begin{itemize}
     \item Sinh hai loại ma trận đo $A \in \R^{m \times n}$ ($m = 100, n = 200$):
     \begin{itemize}
-        \item \emph{Ma trận A (Gaussian độc lập):} Các phần tử sinh độc lập, chuẩn hóa cột. Độ tương quan $\mu(A)$ nhỏ ($\approx 0.2 - 0.3$).
-        \item \emph{Ma trận B (Tương quan cao):} Sinh ma trận có hai cột gần như trùng nhau: $a_2 = a_1 + \delta$ với $\normtwo{\delta} = 10^{-3}$, chuẩn hóa cột. Khi đó $\mu(B) \approx 0.999$.
+        \item \emph{Ma trận A (Gaussian độc lập):} Các phần tử sinh độc lập, chuẩn hóa cột. Độ tương quan $\mu(A)$ vào khoảng $0{,}4 - 0{,}5$ (xấp xỉ $\sqrt{4 \ln n / m}$).
+        \item \emph{Ma trận B (Tương quan cao):} Lấy ma trận A và thay cột thứ hai bởi $a_2 = a_1 + \delta$ với $\normtwo{\delta} = 10^{-3}$, rồi chuẩn hóa cột. Khi đó $1 - \mu(B) = \mathcal{O}(10^{-6})$, tức $\mu(B) \approx 1$.
     \end{itemize}
-    \item Tiến hành giải Basis Pursuit cho các tín hiệu $k$-thưa ngẫu nhiên trên cả hai ma trận.
-    \item \textbf{Kết quả thực nghiệm:} Khi $\mu \approx 1$, tỷ lệ khôi phục thành công của Basis Pursuit sụt giảm từ 100\% xuống dưới 5\%, do vector sai số $h = e_1 - e_2$ nằm gần như hoàn toàn trong $\ker(A)$ và vi phạm điều kiện NSP.
+    \item Tiến hành giải Basis Pursuit cho các tín hiệu $k$-thưa ngẫu nhiên có tập hỗ trợ chứa chỉ số $1$ hoặc $2$ trên cả hai ma trận.
+    \item \textbf{Kết quả dự kiến:} Với ma trận B, vector $h = e_1 - e_2$ (sau chuẩn hóa) thỏa $\normtwo{Bh} \approx 10^{-3}$, tức gần như nằm trong $\ker(B)$, và vi phạm NSP ngay với $k = 1$. Do đó BP không phân biệt được hai cột $a_1, a_2$: tỷ lệ khôi phục chính xác giảm mạnh đối với các tín hiệu có hỗ trợ chạm vào $\{1, 2\}$, trong khi các tín hiệu có hỗ trợ không chứa hai chỉ số này hầu như không bị ảnh hưởng.
 \end{itemize}
 
 \subsection{Thí nghiệm 5: Nén và tái tạo ảnh xám thực tế với biến đổi Wavelet 2D}
@@ -206,7 +206,7 @@ Chương này trình bày chi tiết quy trình thiết kế và thực nghiệm
         
         \node [block] (img) {Ảnh xám gốc\\$x \in \R^{p \times q}$};
         \node [block, right=1.1cm of img] (dwt) {Biến đổi Wavelet 2D\\$\theta = \Psi^T x$ (Thưa)};
-        \node [block, right=1.1cm of dwt] (measure) {Đo nén ngẫu nhiên\\$b = A \theta \in \R^m$};
+        \node [block, right=1.1cm of dwt] (measure) {Đo nén ngẫu nhiên\\$b = A x = A\Psi \theta \in \R^m$};
         
         \node [block, below=1.3cm of measure] (recon) {Thuật toán lồi\\FISTA / ADMM};
         \node [block, left=1.1cm of recon] (idwt) {Wavelet ngược\\$\widehat{x} = \Psi \widehat{\theta}$};
@@ -361,7 +361,7 @@ trong đó $a_i$ là cột thứ $i$ của ma trận $A$, và $\partial |x_i^*|$
 [-1, 1], & \text{nếu } x_i^* = 0.
 \end{cases}
 \]
-Giả sử phản chứng rằng $x_i^* \ne 0$. Khi đó $\partial |x_i^*| = \{\sign(x_i^*)\} \in \{-1, 1\}$, dẫn đến:
+Giả sử phản chứng rằng $x_i^* \ne 0$. Khi đó $\partial |x_i^*| = \{\sign(x_i^*)\}$ với $\sign(x_i^*) \in \{-1, 1\}$, dẫn đến:
 \[
 a_i^T r^* = \lambda \cdot \sign(x_i^*) \implies |a_i^T r^*| = \lambda |\sign(x_i^*)| = \lambda.
 \]

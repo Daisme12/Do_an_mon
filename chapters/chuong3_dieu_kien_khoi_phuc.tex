@@ -20,7 +20,7 @@ Cho ma trận $A \in \R^{m \times n}$. $\spark(A)$ được định nghĩa là s
 \end{equation}
 \end{definition}
 
-So sánh với hạng (\emph{Rank}): $\rank(A)$ là số cột độc lập tuyến tính \emph{lớn nhất}, trong khi $\spark(A)$ là số cột phụ thuộc tuyến tính \emph{nhỏ nhất}. Ta luôn có mối quan hệ:
+So sánh với hạng (\emph{Rank}): $\rank(A)$ là số cột độc lập tuyến tính \emph{lớn nhất}, trong khi $\spark(A)$ là số cột phụ thuộc tuyến tính \emph{nhỏ nhất}. Khi $A$ không có cột nào bằng 0 và $\ker(A) \ne \{0\}$, ta luôn có mối quan hệ:
 \begin{equation}
     2 \le \spark(A) \le \rank(A) + 1 \le m + 1.
 \end{equation}
@@ -94,7 +94,7 @@ Ma trận $A \in \R^{m \times n}$ thỏa mãn tính chất NSP bậc $k$ nếu v
 Ma trận $A$ thỏa mãn NSP bậc $k$ khi và chỉ khi Basis Pursuit khôi phục chính xác mọi vector $k$-thưa $x^\natural$ từ phép đo $b = Ax^\natural$.
 \end{theorem}
 
-\begin{proof}[Chứng minh hoàn chỉnh cả hai chiều theo yêu cầu đồ án]
+\begin{proof}
 \textbf{1. Chiều đủ ($\implies$):} 
 Giả sử $A$ thỏa mãn NSP bậc $k$. Cho $x^\natural$ là vector $k$-thưa tùy ý với tập hỗ trợ $S = \supp(x^\natural)$, nghĩa là $|S| \le k$ và $x^\natural_{S^c} = 0$. 
 
@@ -133,7 +133,7 @@ Như vậy $z$ là một nghiệm khả thi của bài toán BP ứng với dữ
 \end{proof}
 
 \section{Mutual Coherence và điều kiện đủ}
-Kiểm tra điều kiện NSP đòi hỏi phải giải một bài toán kiểm tra trên toàn bộ không gian vô hạn chiều $\ker(A)$, điều này rất khó khăn đối với các ma trận kích thước lớn. Để khắc phục, ta sử dụng \textbf{Mutual Coherence} (Độ tương quan qua lại) như một chỉ số đại số có thể tính toán trực tiếp với độ phức tạp $\mathcal{O}(m n^2)$.
+Kiểm tra điều kiện NSP đòi hỏi phải kiểm tra bất đẳng thức \eqref{eq:nsp_definition} trên vô số vector của không gian con $\ker(A)$ (có số chiều $n - m$) và trên mọi tập $S$ có $|S| \le k$; bài toán này là NP-hard đối với các ma trận kích thước lớn. Để khắc phục, ta sử dụng \textbf{Mutual Coherence} (Độ tương quan qua lại) như một chỉ số đại số có thể tính toán trực tiếp với độ phức tạp $\mathcal{O}(m n^2)$.
 
 Giả sử các cột $a_1, \dots, a_n$ của ma trận $A$ được chuẩn hóa theo chuẩn Euclid: $\normtwo{a_i} = 1, \forall i = 1, \dots, n$.
 
@@ -304,6 +304,26 @@ Mối quan hệ kéo theo giữa các tiêu chuẩn được mô tả thông qua
 \begin{equation}
     k < \frac{1}{2}\left(1 + \frac{1}{\mu(A)}\right) \implies \text{NSP (bậc } k).
 \end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[>=stealth, node distance=1.4cm,
+        box/.style={rectangle, draw=blue!75!black, fill=blue!6, thick, rounded corners, minimum height=2.6em, minimum width=2.8cm, align=center, font=\footnotesize}]
+        
+        \node [box] (rip) {\textbf{RIP}\\$\delta_{2k} < \sqrt{2} - 1$};
+        \node [box, right=1.1cm of rip] (nsp) {\textbf{NSP bậc $k$}\\$\normone{h_S} < \normone{h_{S^c}}$};
+        \node [box, right=1.1cm of nsp] (spark) {\textbf{Spark}\\$\spark(A) > 2k$};
+        \node [box, right=1.1cm of spark, draw=teal!80!black, fill=teal!6] (uniq) {\textbf{Duy nhất $(P_0)$}\\Nghiệm $k$-thưa};
+        \node [box, below=1.2cm of nsp, draw=orange!80!black, fill=orange!8] (coh) {\textbf{Mutual Coherence}\\$k < \frac{1}{2}\left(1 + \frac{1}{\mu(A)}\right)$};
+        
+        \draw [->, very thick, blue!75!black] (rip) -- node [above, font=\scriptsize] {Kéo theo} (nsp);
+        \draw [->, very thick, blue!75!black] (nsp) -- node [above, font=\scriptsize] {Kéo theo} (spark);
+        \draw [->, very thick, teal!80!black] (spark) -- node [above, font=\scriptsize] {$\iff$} (uniq);
+        \draw [->, very thick, orange!80!black] (coh) -- node [right, font=\scriptsize] {Điều kiện đủ} (nsp);
+    \end{tikzpicture}
+    \caption{Sơ đồ phân tầng quan hệ logic giữa các điều kiện khôi phục tín hiệu thưa.}
+    \label{fig:recovery_hierarchy}
+\end{figure}
 
 \textbf{Phân tích chi tiết các nấc phân tầng:}
 \begin{enumerate}
