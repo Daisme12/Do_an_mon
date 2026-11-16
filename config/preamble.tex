@@ -7,7 +7,7 @@
 \ifXeTeX
   \usepackage{fontspec}
   \setmainfont{Times New Roman}
-  \setmonofont{Menlo}
+  \setmonofont{Menlo}[Scale=0.88]
 \else
   \usepackage[utf8]{inputenc}
   \usepackage[T5,T1]{fontenc}
@@ -86,21 +86,29 @@
   \vspace*{5\p@}%
   {\parindent \z@ \centering \normalfont
     \ifnum \c@secnumdepth >\m@ne
-      \large\bfseries \MakeUppercase{\chaptertitlename}\ \thechapter
+      \fontsize{14pt}{18pt}\selectfont\bfseries \MakeUppercase{\chaptertitlename}\ \thechapter
       \par\nobreak
-      \vskip 8\p@
+      \vskip 6\p@
     \fi
     \interlinepenalty\@M
-    \LARGE \bfseries \MakeUppercase{#1}\par\nobreak
-    \vskip 22\p@
+    \fontsize{16pt}{22pt}\selectfont\bfseries \MakeUppercase{#1}\par\nobreak
+    \vskip 20\p@
   }}
 \def\@makeschapterhead#1{%
   \vspace*{5\p@}%
   {\parindent \z@ \centering \normalfont
     \interlinepenalty\@M
-    \LARGE \bfseries \MakeUppercase{#1}\par\nobreak
-    \vskip 22\p@
+    \fontsize{16pt}{22pt}\selectfont\bfseries \MakeUppercase{#1}\par\nobreak
+    \vskip 20\p@
   }}
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+  {-2.8ex \@plus -1ex \@minus -.2ex}%
+  {1.4ex \@plus.2ex}%
+  {\normalfont\fontsize{14pt}{18pt}\selectfont\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-2.2ex\@plus -1ex \@minus -.2ex}%
+  {1.0ex \@plus .2ex}%
+  {\normalfont\fontsize{12.5pt}{16pt}\selectfont\bfseries}}
 \makeatother
 
 % ==============================================================================
@@ -155,3 +163,7 @@
     pdfstartview=FitH
 ]{hyperref}
 \usepackage{bookmark}
+\pdfstringdefDisableCommands{%
+  \def\ell{l}%
+  \def\lambda{lambda}%
+}
