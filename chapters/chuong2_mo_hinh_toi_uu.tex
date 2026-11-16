@@ -42,7 +42,7 @@ Vì $\normzero{z} = 2 > 1$, hàm $\normzero{\cdot}$ không thỏa mãn định n
 \end{proof}
 
 \subsection{Bài toán Basis Pursuit (BP)}
-Kỹ thuật giải tỏa lồi (\emph{convex relaxation}) thay thế hàm $\normzero{\cdot}$ bằng bao lồi (\emph{convex envelope}) của nó trên hình hộp $\{x : \|x\|_\infty \le 1\}$, chính là chuẩn $\ell_1$, đưa về bài toán \textbf{Basis Pursuit (BP)}:
+Kỹ thuật giải tỏa lồi (\emph{convex relaxation}) thay thế hàm $\normzero{\cdot}$ bằng bao lồi (\emph{convex envelope}) của nó trên hình hộp $\{x : \|x\|_\infty \le 1\}$, chính là chuẩn $\ell_1$, đưa về bài toán \textbf{Basis Pursuit (BP)} \cite{donoho2006compressed, foucart2013mathematical}:
 \begin{equation}
     (BP) \quad \min_{x \in \R^n} \normone{x} \quad \text{s.t.} \quad Ax = b.
 \end{equation}
@@ -148,7 +148,7 @@ Ví dụ trên chứng minh rằng chuẩn $\ell_1$ \textbf{không tự động 
 \end{remark}
 
 \section{Dưới vi phân và cơ chế giải tích của LASSO}
-Do chuẩn $\ell_1$ không khả vi tại các điểm có tọa độ bằng 0, công cụ giải tích cổ điển không thể áp dụng trực tiếp. Ta cần lý thuyết giải tích lồi hiện đại thông qua khái niệm \textbf{dưới vi phân}.
+Do chuẩn $\ell_1$ không khả vi tại các điểm có tọa độ bằng 0, công cụ giải tích cổ điển không thể áp dụng trực tiếp. Ta cần lý thuyết giải tích lồi hiện đại thông qua khái niệm \textbf{dưới vi phân} \cite{foucart2013mathematical, beck2009fast}.
 
 \begin{definition}[Dưới gradient và Dưới vi phân]
 Cho hàm lồi $f : \R^n \to \R$. Vector $g \in \R^n$ được gọi là một dưới gradient của $f$ tại điểm $x$ nếu:

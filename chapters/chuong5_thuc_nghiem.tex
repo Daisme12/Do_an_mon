@@ -1,5 +1,141 @@
+% ==============================================================================
+% CHƯƠNG 5: THỰC NGHIỆM MÔ PHỎNG VÀ CÂU HỎI TỰ KIỂM TRA
+% ==============================================================================
+\chapter{Thực nghiệm mô phỏng và câu hỏi tự kiểm tra}
+\label{chap:thuc_nghiem}
 
-\
+Chương này trình bày chi tiết quy trình thiết kế và kết quả thực nghiệm số thực tế cho 5 kịch bản mô phỏng độc lập bằng ngôn ngữ Python (với \texttt{NumPy}, \texttt{Matplotlib}, \texttt{PyWavelets}, cố định \texttt{seed = 42} để đảm bảo khả năng tái lập), cùng hệ thống câu hỏi tự kiểm tra kèm lời giải chi tiết nhằm minh chứng và củng cố toàn diện bản chất toán học của đề tài. Toàn bộ mã nguồn chương trình được đính kèm tại Phụ lục \ref{app:source_code}.
+
+% ==============================================================================
+\section{Kịch bản thực nghiệm và phân tích kết quả mô phỏng}
+\label{sec:kich_ban_thuc_nghiem}
+% ==============================================================================
+
+\subsection{Thí nghiệm 1: Khảo sát chuyển pha theo số phép đo và độ thưa}
+\textbf{Mục tiêu:} Xác định ranh giới chuyển pha (\emph{Phase Transition}) \cite{donoho2006compressed} giữa vùng khôi phục thành công 100\% và vùng thất bại khi thay đổi tỷ lệ nén $\delta = m/n$ và độ thưa $k$.
+
+\textbf{Thiết lập tham số và kết quả thực nghiệm:}
+\begin{itemize}
+    \item Kích thước tín hiệu cố định $n = 128$; số phép đo $m \in \{20, 35, 50, 65, 80, 95\}$; độ thưa $k \in \{4, 8, 12, 16, 20, 24, 28, 32\}$.
+    \item Với mỗi cặp $(m, k)$, thực hiện $T = 15$ lần thử nghiệm Monte Carlo độc lập: sinh ma trận Gaussian $A \in \R^{m \times n}$ chuẩn hóa cột, vector $k$-thưa $x^\natural$, giải Basis Pursuit bằng thuật toán ADMM (\texttt{admm\_bp}) và tính thành công khi $\mathrm{RelErr} = \frac{\normtwo{\widehat{x} - x^\natural}}{\max(1, \normtwo{x^\natural})} < 10^{-3}$.
+    \item \textbf{Kết quả ghi nhận:} Trên Hình \ref{fig:phase_transition}, đường ranh giới chuyển pha hiện ra rõ nét: chẳng hạn tại $m = 80$ ($\delta = 0{,}625$), thuật toán đạt tỷ lệ thành công $1{,}00$ với mọi $k \le 28$ và giảm xuống $0{,}73$ tại $k = 32$; tại $m = 50$, tỷ lệ đạt $1{,}00$ ở $k \le 8$, $0{,}93$ ở $k = 12$ và giảm về $0{,}20$ ở $k = 20$.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.82\textwidth]{fig_exp1_phase_transition.pdf}
+    \caption{Biểu đồ nhiệt xác suất khôi phục thành công của Basis Pursuit (ADMM) theo $m$ và $k$ ($n = 128, T = 15$, \texttt{seed = 42}).}
+    \label{fig:phase_transition}
+\end{figure}
+
+\subsection{Thí nghiệm 2: Khảo sát ảnh hưởng của nhiễu và tinh chỉnh tham số $\lambda$}
+\textbf{Mục tiêu:} Kiểm chứng chặn sai số ổn định $\|\widehat{x} - x^\natural\|_2 \le C_1 \varepsilon$ và khảo sát đường cong đánh đổi giữa độ khớp dữ liệu và mức độ thưa theo tham số phạt $\lambda$ trong LASSO.
+
+\textbf{Thiết lập tham số và kết quả thực nghiệm:}
+\begin{itemize}
+    \item Cố định $n = 256, m = 100, k = 12$, nhiễu trắng Gaussian theo 4 mức $\mathrm{SNR} \in \{10, 20, 30, 40\}\text{ dB}$, quét $\lambda$ trên 25 điểm logarit trong $[10^{-4}, 10^0]$ bằng FISTA.
+    \item \textbf{Kết quả số thu được:}
+    \begin{itemize}
+        \item $\mathrm{SNR} = 10\text{ dB}$: $\lambda^* = 2{,}154 \times 10^{-1}$, sai số tương đối nhỏ nhất $\mathrm{RelErr}_{\min} = 0{,}3250$.
+        \item $\mathrm{SNR} = 20\text{ dB}$: $\lambda^* = 4{,}642 \times 10^{-2}$, $\mathrm{RelErr}_{\min} = 0{,}1010$.
+        \item $\mathrm{SNR} = 30\text{ dB}$: $\lambda^* = 1{,}468 \times 10^{-2}$, $\mathrm{RelErr}_{\min} = 0{,}0314$.
+        \item $\mathrm{SNR} = 40\text{ dB}$: $\lambda^* = 4{,}642 \times 10^{-3}$, $\mathrm{RelErr}_{\min} = 0{,}0092$.
+    \end{itemize}
+    \item Sai số tối ưu giảm theo đúng tỷ lệ $\sqrt{10} \approx 3{,}16$ lần mỗi khi $\mathrm{SNR}$ tăng $10\text{ dB}$, khẳng định tính ổn định tuyến tính theo biên độ nhiễu. Hình \ref{fig:noise_lambda} và Hình \ref{fig:signal_recovery_stem} trình bày kết quả đồ thị thu được.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.80\textwidth]{fig_exp2_noise_lambda.pdf}
+    \caption{Đường cong đánh đổi sai số tương đối theo tham số $\lambda$ dưới các mức nhiễu SNR khác nhau.}
+    \label{fig:noise_lambda}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.86\textwidth]{fig_exp2_stem_1d.pdf}
+    \caption{Kết quả khôi phục tín hiệu thưa 1D thực tế tại $\mathrm{SNR} = 30\text{ dB}$ ($n = 256, m = 100, k = 12$): Vị trí và biên độ xung khôi phục $\widehat{x}$ khớp chính xác với tín hiệu gốc $x^\natural$.}
+    \label{fig:signal_recovery_stem}
+\end{figure}
+
+\subsection{Thí nghiệm 3: So sánh hiệu năng hội tụ giữa ISTA và FISTA}
+\textbf{Mục tiêu:} Kiểm chứng bằng thực nghiệm tốc độ hội tụ lý thuyết $\mathcal{O}(1/k)$ của ISTA so với $\mathcal{O}(1/k^2)$ của FISTA.
+
+\textbf{Thiết lập tham số và kết quả thực nghiệm:}
+\begin{itemize}
+    \item Bài toán LASSO với $n = 512, m = 120, k = 22$, $\sigma = 0{,}01$, $\lambda = 0{,}01 \|A^T b\|_\infty$; hằng số Lipschitz $L$ tính bằng Power Iteration; giá trị tham chiếu $F^* = 0{,}414618$ tính bằng 3.000 vòng lặp FISTA.
+    \item \textbf{Kết quả sau 300 vòng lặp:} ISTA đạt $F(x^{300}) - F^* = 6{,}880 \times 10^{-2}$ (thời gian CPU $4{,}25\text{ ms}$), trong khi FISTA đạt $F(x^{300}) - F^* = 2{,}012 \times 10^{-6}$ (thời gian CPU $4{,}79\text{ ms}$) --- cải thiện độ chính xác hơn \textbf{30.000 lần} với chi phí tính toán gần như tương đương (Hình \ref{fig:convergence_comparison}).
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.80\textwidth]{fig_exp3_ista_vs_fista.pdf}
+    \caption{Đồ thị thực nghiệm so sánh tốc độ suy giảm hàm mục tiêu $\log_{10}(F(x^k) - F^*)$ giữa ISTA và FISTA.}
+    \label{fig:convergence_comparison}
+\end{figure}
+
+\subsection{Thí nghiệm 4: Khảo sát ảnh hưởng của Mutual Coherence}
+\textbf{Mục tiêu:} Minh họa kết luận lý thuyết: ma trận có các cột tương quan cao (coherence lớn) sẽ làm suy giảm nghiêm trọng khả năng phục hồi của chuẩn $\ell_1$.
+
+\textbf{Thiết lập tham số và kết quả thực nghiệm:}
+\begin{itemize}
+    \item Với $m = 80, n = 160, k = 8$ ($T = 25$ lần thử): Ma trận Gaussian độc lập $A$ có $\mu(A) = 0{,}4338$; ma trận $B$ được tạo bằng cách gán cột thứ hai $b_2 = b_1 + \delta$ với $\normtwo{\delta} = 10^{-3}$ rồi chuẩn hóa, cho $\mu(B) \approx 1{,}000000$.
+    \item \textbf{Kết quả ghi nhận (Hình \ref{fig:coherence_impact}):} Ma trận $A$ khôi phục thành công $100{,}0\%$. Với ma trận $B$, khi tập hỗ trợ chứa cột $1$ (tương quan cao với cột $2$), tỷ lệ thành công sụt giảm mạnh xuống chỉ còn $16{,}0\%$; ngược lại, khi tập hỗ trợ tránh cặp cột $\{1, 2\}$, tỷ lệ thành công vẫn duy trì $100{,}0\%$.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.78\textwidth]{fig_exp4_coherence.pdf}
+    \caption{So sánh tỷ lệ khôi phục thành công của Basis Pursuit trên ma trận coherence thấp ($A$) và ma trận có cặp cột tương quan cao ($B$).}
+    \label{fig:coherence_impact}
+\end{figure}
+
+\subsection{Thí nghiệm 5: Nén và tái tạo ảnh 2D với biến đổi Wavelet 2D}
+\textbf{Mục tiêu:} Đánh giá khả năng ứng dụng thực tiễn của Lấy mẫu nén trên dữ liệu ảnh 2D (thưa xấp xỉ trong miền Wavelet \texttt{db4} mức 3) \cite{nguyen2016khoiphuc}.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[>=stealth, auto, scale=0.92, every node/.style={scale=0.92},
+        block/.style={rectangle, draw=blue!80!black, fill=blue!8, thick, rounded corners, minimum height=2.8em, minimum width=5.6em, align=center, font=\footnotesize}]
+        
+        \node [block] (img) {Ảnh xám gốc\\$x \in \R^{p \times q}$};
+        \node [block, right=1.1cm of img] (dwt) {Biến đổi Wavelet 2D\\$\theta = \Psi^T x$ (Thưa)};
+        \node [block, right=1.1cm of dwt] (measure) {Đo nén ngẫu nhiên\\$b = A x = A\Psi \theta \in \R^m$};
+        
+        \node [block, below=1.3cm of measure] (recon) {Thuật toán lồi\\FISTA / ADMM};
+        \node [block, left=1.1cm of recon] (idwt) {Wavelet ngược\\$\widehat{x} = \Psi \widehat{\theta}$};
+        \node [block, left=1.1cm of idwt] (out) {Ảnh khôi phục\\$\widehat{x}$ ($\mathrm{SSIM} = 0{,}972$)};
+        
+        \draw [->, thick] (img) -- node [above] {\scriptsize Thưa hóa} (dwt);
+        \draw [->, thick] (dwt) -- node [above] {\scriptsize $m \ll n$} (measure);
+        \draw [->, thick] (measure) -- node [right] {\scriptsize Dữ liệu $b$} (recon);
+        \draw [->, thick] (recon) -- node [above] {\scriptsize Hệ số $\widehat{\theta}$} (idwt);
+        \draw [->, thick] (idwt) -- node [above] {\scriptsize Tái tạo ảnh} (out);
+    \end{tikzpicture}
+    \caption{Sơ đồ khối quy trình nén và tái tạo ảnh xám 2D sử dụng cơ sở biến đổi Wavelet và thuật toán tối ưu hóa lồi.}
+    \label{fig:wavelet_cs_pipeline}
+\end{figure}
+
+\textbf{Thiết lập tham số và kết quả thực nghiệm:}
+\begin{itemize}
+    \item Sử dụng ảnh phantom hình học $64 \times 64$ ($n = 4096$ pixel), biến đổi Wavelet Daubechies 4 (\texttt{db4}) mức 3 làm cơ sở $\Psi$, thực hiện $m = 0{,}3n = 1228$ và $m = 0{,}5n = 2048$ phép đo ngẫu nhiên Gaussian và giải bằng 250 vòng lặp FISTA.
+    \item \textbf{Kết quả định lượng thực tế (Hình \ref{fig:image_cs_result}):}
+    \begin{itemize}
+        \item Tại tỷ lệ đo $30\%$ ($m = 0{,}3n$): $\mathrm{PSNR} = 17{,}38\text{ dB}$, $\mathrm{SSIM} = 0{,}869$.
+        \item Tại tỷ lệ đo $50\%$ ($m = 0{,}5n$): $\mathrm{PSNR} = 23{,}57\text{ dB}$, $\mathrm{SSIM} = 0{,}972$, tái tạo sắc nét toàn bộ cấu trúc biên và vùng ảnh.
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig_exp5_image_cs.pdf}
+    \caption{Kết quả tái tạo ảnh 2D thực tế bằng FISTA trong miền Wavelet \texttt{db4} tại các tỷ lệ đo $m = 0{,}3n$ và $m = 0{,}5n$.}
+    \label{fig:image_cs_result}
+\end{figure}
+
+\clearpage
+
+% ==============================================================================
 \section{Hệ thống câu hỏi tự kiểm tra và lời giải chi tiết}
 \label{sec:cau_hoi_tu_kiem_tra}
 % ==============================================================================

@@ -28,7 +28,7 @@ trong đó:
 
 Về mặt đại số tuyến tính thuần túy, ma trận $A$ có số cột nhiều hơn số hàng ($m < n$), do đó không gian hạt nhân $\ker(A) \coloneqq \{h \in \R^n : Ah = 0\}$ có số chiều ít nhất là $n - m > 0$. Nếu hệ có một nghiệm $x_0$, thì toàn bộ không gian affine $x_0 + \ker(A)$ gồm vô số phần tử đều là nghiệm của \eqref{eq:underdetermined_system}. 
 
-Tuy nhiên, nếu ta biết thêm thông tin cấu trúc tiên nghiệm: \textbf{tín hiệu thực sự mang thông tin là một tín hiệu thưa} (hầu hết các tọa độ bằng 0), thì giao điểm giữa tập hợp các vector thưa và không gian nghiệm affine $x_0 + \ker(A)$ hoàn toàn có thể là một điểm duy nhất. Lý thuyết Lấy mẫu nén (\emph{Compressed Sensing}) khẳng định rằng: thông tin cấu trúc này cho phép giải quyết trọn vẹn nghịch lý thiếu phương trình.
+Tuy nhiên, nếu ta biết thêm thông tin cấu trúc tiên nghiệm: \textbf{tín hiệu thực sự mang thông tin là một tín hiệu thưa} (hầu hết các tọa độ bằng 0), thì giao điểm giữa tập hợp các vector thưa và không gian nghiệm affine $x_0 + \ker(A)$ hoàn toàn có thể là một điểm duy nhất. Lý thuyết Lấy mẫu nén (\emph{Compressed Sensing}) \cite{donoho2006compressed, candes2006stable} khẳng định rằng: thông tin cấu trúc này cho phép giải quyết trọn vẹn nghịch lý thiếu phương trình.
 
 \section{Tín hiệu và biểu diễn thưa trong cơ sở biến đổi}
 Tín hiệu trong tự nhiên ban đầu là các hàm liên tục: âm thanh $s(t)$, ảnh số $I(u, v)$, hoặc video $V(u, v, t)$. Khi số hóa, ta lấy mẫu tín hiệu liên tục tại các thời điểm rời rạc $t_j = j T_s$, tạo thành dãy $\{x_j\}$, tương ứng với vector $x \in \R^n$. Một bức ảnh có kích thước $p \times q$ cũng có thể vector hóa thành một phần tử trong không gian $\R^{pq}$.
@@ -51,7 +51,7 @@ Tín hiệu trong tự nhiên ban đầu là các hàm liên tục: âm thanh $s
 
 Phép đo nén $b_i = \sum_{j=1}^n a_{ij} x_j + e_i$ thu nhận sự kết hợp tuyến tính toàn cục từ các tọa độ của tín hiệu, không phải là việc ngẫu nhiên chọn lấy một vài thành phần đơn lẻ của $x$.
 
-Trong nhiều bài toán thực tế, tín hiệu $x$ không thưa trực tiếp trong miền thời gian hay không gian gốc, nhưng có biểu diễn thưa thông qua một cơ sở trực chuẩn hoặc từ điển $\Psi \in \R^{n \times n}$ (chẳng hạn như biến đổi Fourier rời rạc DFT hoặc Wavelet):
+Trong nhiều bài toán thực tế, tín hiệu $x$ không thưa trực tiếp trong miền thời gian hay không gian gốc, nhưng có biểu diễn thưa thông qua một cơ sở trực chuẩn hoặc từ điển $\Psi \in \R^{n \times n}$ (chẳng hạn như biến đổi Fourier rời rạc DFT hoặc Wavelet) \cite{foucart2013mathematical, nguyen2016khoiphuc}:
 \begin{equation}
     x = \Psi \theta = \sum_{j=1}^n \theta_j \psi_j,
 \end{equation}

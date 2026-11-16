@@ -151,7 +151,7 @@ Chứng minh hoàn tất.
 
 \section{Thuật toán FISTA và phương pháp GPSR}
 \subsection{Thuật toán FISTA (Fast ISTA)}
-Mặc dù ISTA đơn giản, tốc độ hội tụ $\mathcal{O}(1/k)$ khá chậm khi xử lý dữ liệu lớn. Beck và Teboulle (2009) đã áp dụng kỹ thuật gia tốc động lượng của Nesterov để đề xuất FISTA.
+Mặc dù ISTA đơn giản, tốc độ hội tụ $\mathcal{O}(1/k)$ khá chậm khi xử lý dữ liệu lớn. Beck và Teboulle (2009) đã áp dụng kỹ thuật gia tốc động lượng của Nesterov để đề xuất FISTA \cite{beck2009fast}.
 
 \textbf{Quy trình lặp của FISTA:}
 Khởi tạo $x^0 = y^0 \in \R^n$ và hệ số động lượng $t_0 = 1$. Tại bước $k \ge 0$:
@@ -173,7 +173,7 @@ Chặn trên của FISTA là tốc độ hội tụ của \textbf{giá trị hà
 \end{remark}
 
 \subsection{Phương pháp GPSR (Gradient Projection for Sparse Reconstruction)}
-Phương pháp GPSR của Figueiredo, Nowak và Wright (2007) tiếp cận bài toán LASSO theo hướng tối ưu hóa ràng buộc biên. Bằng cách phân tích vector biến $x = u - v$ với $u = \max(x, 0) \ge 0$ và $v = \max(-x, 0) \ge 0$, chuẩn $\normone{x} = \mathbf{1}^T(u + v)$. Bài toán LASSO trở thành:
+Phương pháp GPSR của Figueiredo, Nowak và Wright (2007) \cite{figueiredo2007gradient} tiếp cận bài toán LASSO theo hướng tối ưu hóa ràng buộc biên. Bằng cách phân tích vector biến $x = u - v$ với $u = \max(x, 0) \ge 0$ và $v = \max(-x, 0) \ge 0$, chuẩn $\normone{x} = \mathbf{1}^T(u + v)$. Bài toán LASSO trở thành:
 \begin{equation}
     \min_{u \ge 0, v \ge 0} \phi(u, v) \coloneqq \frac{1}{2} \normtwo{A(u - v) - b}^2 + \lambda \mathbf{1}^T(u + v).
 \end{equation}
@@ -184,7 +184,7 @@ Phương pháp GPSR của Figueiredo, Nowak và Wright (2007) tiếp cận bài 
 trong đó phép chiếu $\mathcal{P}_{\R^{2n}_+}$ chỉ đơn giản là phép gán $\max(\cdot, 0)$ theo từng tọa độ, và độ dài bước $\alpha_k$ được tính toán linh hoạt theo phương pháp Barzilai--Borwein (BB steps) kết hợp tìm kiếm đường thẳng không đơn điệu.
 
 \section{Thuật toán ADMM cho Basis Pursuit}
-Để giải bài toán Basis Pursuit không nhiễu $\min \normone{x}$ thỏa $Ax = b$, phương pháp nhân tử Lagrange tăng cường hướng luân phiên (\emph{Alternating Direction Method of Multipliers} - ADMM) là sự lựa chọn tối ưu.
+Để giải bài toán Basis Pursuit không nhiễu $\min \normone{x}$ thỏa $Ax = b$, phương pháp nhân tử Lagrange tăng cường hướng luân phiên (\emph{Alternating Direction Method of Multipliers} - ADMM) \cite{boyd2011distributed} là sự lựa chọn tối ưu.
 
 Ta biến đổi bài toán bằng cách tách biến $x = z$ và gọi tập khả thi affine là $C \coloneqq \{x \in \R^n : Ax = b\}$:
 \begin{equation}

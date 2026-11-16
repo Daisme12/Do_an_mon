@@ -78,7 +78,7 @@ Do đó, ma trận $A$ đảm bảo \textbf{mọi vector $1$-thưa đều đư�
 \end{proof}
 
 \section{Tính chất không gian hạt nhân (NSP) và điều kiện cần đủ của BP}
-Mặc dù Spark giải quyết tính duy nhất, nó không cho biết liệu thuật toán lồi Basis Pursuit có tìm được nghiệm hay không. Cầu nối toán học sâu sắc nhất trả lời câu hỏi này là \textbf{Tính chất không gian hạt nhân} (\emph{Null Space Property} - NSP).
+Mặc dù Spark giải quyết tính duy nhất, nó không cho biết liệu thuật toán lồi Basis Pursuit có tìm được nghiệm hay không. Cầu nối toán học sâu sắc nhất trả lời câu hỏi này là \textbf{Tính chất không gian hạt nhân} (\emph{Null Space Property} - NSP) \cite{foucart2013mathematical}.
 
 \begin{definition}[NSP bậc $k$]
 Ma trận $A \in \R^{m \times n}$ thỏa mãn tính chất NSP bậc $k$ nếu với mọi vector khác không $h \in \ker(A) \setminus \{0\}$ và với mọi tập chỉ số $S \subset \{1, \dots, n\}$ thỏa mãn $|S| \le k$, ta đều có:
@@ -209,7 +209,7 @@ Nếu có hai vector $k$-thưa $x \ne z$ thỏa $Ax = Az$, thì $h = x - z \ne 0
 Mâu thuẫn này chứng tỏ $\delta_{2k} < 1$ là điều kiện đủ bảo đảm tính duy nhất.
 \end{proof}
 
-\begin{theorem}[Định lý ổn định Candès--Romberg--Tao]
+\begin{theorem}[Định lý ổn định Candès--Romberg--Tao \cite{candes2006stable}]
 Nếu ma trận $A$ thỏa mãn tính chất RIP bậc $2k$ với:
 \begin{equation}
     \delta_{2k} < \sqrt{2} - 1 \approx 0.4142,
@@ -255,7 +255,7 @@ Do đó, đại lượng $\normtwo{A(\widehat{x} - x^\natural)} \le 2\varepsilon
 Chính vì lý do này, để kiểm soát toàn bộ sai số tái tạo $\normtwo{\widehat{x} - x^\natural}$, ta bắt buộc phải bổ sung các giả thiết hình học mạnh mẽ lên ma trận $A$ như RIP hoặc NSP vững để đảm bảo vector sai số không thể rơi vào hạt nhân của $A$.
 \end{proof}
 
-\begin{theorem}[Chặn sai số tổng quát dưới điều kiện RIP]
+\begin{theorem}[Chặn sai số tổng quát dưới điều kiện RIP \cite{candes2006stable, foucart2013mathematical}]
 Dưới giả thiết RIP $\delta_{2k} < \sqrt{2} - 1$, nghiệm $\widehat{x}$ của BPDN thỏa mãn:
 \begin{equation}
     \normtwo{\widehat{x} - x^\natural} \le C_0 \frac{\sigma_k(x^\natural)_1}{\sqrt{k}} + C_1 \varepsilon,
