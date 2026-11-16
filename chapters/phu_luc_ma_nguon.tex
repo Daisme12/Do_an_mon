@@ -1,0 +1,52 @@
+% ==============================================================================
+% PHỤ LỤC: MÃ NGUỒN THỰC NGHIỆM MÔ PHỎNG
+% ==============================================================================
+\chapter{Mã nguồn thực nghiệm mô phỏng}
+\label{app:source_code}
+
+Phụ lục này cung cấp toàn bộ mã nguồn Python độc lập được sử dụng để sinh dữ liệu, giải các bài toán tối ưu (ISTA, FISTA, ADMM) và vẽ trực tiếp 6 biểu đồ kết quả thực nghiệm trong Chương \ref{chap:thuc_nghiem}.
+
+\section{Môi trường thực thi và kết quả đầu ra trên dòng lệnh}
+\begin{itemize}
+    \item \textbf{Môi trường:} Python 3.12+, thư viện \texttt{NumPy}, \texttt{Matplotlib}, \texttt{PyWavelets}.
+    \item \textbf{Hạt giống ngẫu nhiên:} \texttt{SEED = 42} (\texttt{numpy.random.default\_rng(42)}).
+    \item \textbf{Lệnh chạy:} \texttt{python code/run\_experiments.py} (thời gian chạy toàn bộ 5 thí nghiệm khoảng $10$ giây).
+\end{itemize}
+
+{\scriptsize
+\begin{verbatim}
+=== THÍ NGHIỆM 1: CHUYỂN PHA BASIS PURSUIT (ADMM) ===
+k \ m |   20 |   35 |   50 |   65 |   80 |   95
+-----------------------------------------------
+    4 | 0.60 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00
+    8 | 0.00 | 0.87 | 1.00 | 1.00 | 1.00 | 1.00
+   12 | 0.00 | 0.20 | 0.93 | 0.93 | 1.00 | 0.93
+   16 | 0.00 | 0.00 | 0.53 | 0.93 | 1.00 | 1.00
+   20 | 0.00 | 0.00 | 0.20 | 0.93 | 1.00 | 1.00
+   24 | 0.00 | 0.00 | 0.00 | 0.53 | 1.00 | 1.00
+   28 | 0.00 | 0.00 | 0.00 | 0.20 | 1.00 | 1.00
+   32 | 0.00 | 0.00 | 0.00 | 0.00 | 0.73 | 1.00
+
+=== THÍ NGHIỆM 2: ẢNH HƯỞNG NHIỄU VÀ THAM SỐ LAMBDA (LASSO) ===
+SNR = 10 dB | lambda* = 2.1544e-01 | RelErr min = 3.2500e-01 | k_hat = 35
+SNR = 20 dB | lambda* = 4.6416e-02 | RelErr min = 1.0095e-01 | k_hat = 48
+SNR = 30 dB | lambda* = 1.4678e-02 | RelErr min = 3.1415e-02 | k_hat = 44
+SNR = 40 dB | lambda* = 4.6416e-03 | RelErr min = 9.1608e-03 | k_hat = 37
+
+=== THÍ NGHIỆM 3: SO SÁNH HỘI TỤ ISTA VS FISTA ===
+F* = 0.414618
+ISTA  (300 iters): F - F* = 6.880e-02, CPU time = 4.25 ms
+FISTA (300 iters): F - F* = 2.012e-06, CPU time = 4.79 ms
+
+=== THÍ NGHIỆM 4: ẢNH HƯỞNG CỦA MUTUAL COHERENCE ===
+mu(A) = 0.4338 -> Tỷ lệ thành công: 100.0%
+mu(B) = 1.000000 -> Khi hỗ trợ chứa cột 1: 16.0% | Khi tránh {1,2}: 100.0%
+
+=== THÍ NGHIỆM 5: NÉN VÀ TÁI TẠO ẢNH 2D WAVELET DB4 ===
+Tỷ lệ đo m/n = 0.3 (m = 1228/4096) -> PSNR = 17.38 dB, SSIM = 0.8687
+Tỷ lệ đo m/n = 0.5 (m = 2048/4096) -> PSNR = 23.57 dB, SSIM = 0.9722
+\end{verbatim}
+}
+
+\section{Toàn bộ mã nguồn chương trình (\texttt{code/run\_experiments.py})}
+\lstinputlisting[caption={Mã nguồn Python thực nghiệm mô phỏng cho 5 kịch bản trong Chương 5.}]{code/run_experiments.py}

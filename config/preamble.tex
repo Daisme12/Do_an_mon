@@ -7,6 +7,7 @@
 \ifXeTeX
   \usepackage{fontspec}
   \setmainfont{Times New Roman}
+  \setmonofont{Menlo}
 \else
   \usepackage[utf8]{inputenc}
   \usepackage[T5,T1]{fontenc}
@@ -56,6 +57,26 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{float}
+\usepackage{listings}
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue!80!black}\bfseries,
+    commentstyle=\color{teal!70!black}\itshape,
+    stringstyle=\color{orange!75!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    backgroundcolor=\color{gray!5},
+    frame=single,
+    rulecolor=\color{gray!40},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=4,
+    showstringspaces=false,
+    captionpos=b
+}
 
 % ==============================================================================
 % 4. ĐỊNH DẠNG TIÊU ĐỀ CHƯƠNG CHUẨN (KHÔNG CẦN CÀI THÊM GÓI PHỤ)
