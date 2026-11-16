@@ -17,7 +17,7 @@ Trong trường hợp lý tưởng không có nhiễu ($e = 0$), bài toán tr�
     (P_0) \quad \min_{x \in \R^n} \normzero{x} \quad \text{s.t.} \quad Ax = b.
 \end{equation}
 
-Mặc dù mô hình $(P_0)$ phản ánh đúng định nghĩa của tính thưa, bài toán này thuộc lớp **NP-hard** (đã được chứng minh bởi Natarajan, 1995). Về mặt tổ hợp, để giải $(P_0)$, ta phải duyệt qua tất cả các tổ hợp gồm $k$ cột trong số $n$ cột của ma trận $A$, tức $\binom{n}{k}$ không gian con. Khi $n$ và $k$ chỉ ở mức trung bình (ví dụ $n = 500, k = 30$), số lượng tổ hợp là $\approx 10^{46}$, vượt quá khả năng tính toán của mọi siêu máy tính. Hơn nữa, hàm mục tiêu $\normzero{\cdot}$ gián đoạn và không lồi, khiến mọi phương pháp giải tích dựa trên đạo hàm hoàn toàn vô hiệu.
+Mặc dù mô hình $(P_0)$ phản ánh đúng định nghĩa của tính thưa, bài toán này thuộc lớp \textbf{NP-hard} (đã được chứng minh bởi Natarajan, 1995). Về mặt tổ hợp, để giải $(P_0)$, ta phải duyệt qua tất cả các tổ hợp gồm $k$ cột trong số $n$ cột của ma trận $A$, tức $\binom{n}{k}$ không gian con. Khi $n$ và $k$ chỉ ở mức trung bình (ví dụ $n = 500, k = 30$), số lượng tổ hợp là $\approx 10^{46}$, vượt quá khả năng tính toán của mọi siêu máy tính. Hơn nữa, hàm mục tiêu $\normzero{\cdot}$ gián đoạn và không lồi, khiến mọi phương pháp giải tích dựa trên đạo hàm hoàn toàn vô hiệu.
 
 \begin{theorem}[Tính lồi của chuẩn $\ell_1$ và không lồi của $\ell_0$]
 Chuẩn $\normone{\cdot}$ là một hàm lồi trên $\R^n$, trong khi đại lượng $\normzero{\cdot}$ không phải là hàm lồi.
@@ -58,12 +58,12 @@ Khi tín hiệu đo bị ô nhiễm bởi vector nhiễu $e$ với năng lượn
     (BPDN) \quad \min_{x \in \R^n} \normone{x} \quad \text{s.t.} \quad \normtwo{Ax - b} \le \varepsilon.
 \end{equation}
 
-Mô hình không ràng buộc tương ứng thông qua kỹ thuật hàm phạt Lagrange là bài toán **LASSO** (\emph{Least Absolute Shrinkage and Selection Operator}):
+Mô hình không ràng buộc tương ứng thông qua kỹ thuật hàm phạt Lagrange là bài toán \textbf{LASSO} (\emph{Least Absolute Shrinkage and Selection Operator}):
 \begin{equation}
     (LASSO) \quad \min_{x \in \R^n} F(x) \coloneqq \frac{1}{2} \normtwo{Ax - b}^2 + \lambda \normone{x}, \quad (\lambda > 0).
 \end{equation}
 
-\begin{remark}[Cảnh báo phân biệt mô hình của giảng viên]
+\begin{remark}[Mối quan hệ tham số giữa các mô hình]
 Không được đồng nhất BP, BPDN và LASSO với cùng một bộ tham số. Mối quan hệ giữa mức nhiễu $\varepsilon$ trong BPDN và tham số điều hòa $\lambda$ trong LASSO là một ánh xạ phụ thuộc phi tuyến tính vào dữ liệu $A, b$. Với mỗi $\varepsilon > 0$, chỉ tồn tại một giá trị $\lambda(\varepsilon)$ nhất định sao cho nghiệm của hai bài toán trùng nhau; việc lựa chọn tham số trong thực tế đòi hỏi các kỹ thuật điều chỉnh chéo (\emph{Cross-Validation}) hoặc nguyên lý bù sai số Morozov.
 \end{remark}
 
@@ -111,7 +111,7 @@ Trong không gian $\R^2$:
     \item Ngược lại, mặt mức của chuẩn $\ell_2$ ($\{x \in \R^2 : x_1^2 + x_2^2 \le c^2\}$) là một đường tròn trơn hoàn hảo. Tiếp điểm trực giao giữa đường tròn và đường thẳng thông thường không nằm trên trục tọa độ, khiến cả hai thành phần đều mang giá trị khác không (nghiệm đặc).
 \end{itemize}
 
-\begin{example}[Phân tích tính duy nhất nghiệm qua hai ví dụ của thầy]
+\begin{example}[Phân tích tính duy nhất nghiệm trong $\R^2$]
 Xét hai trường hợp cụ thể:
 \begin{enumerate}
     \item \textbf{Trường hợp 1:} Ràng buộc là $2x_1 + x_2 = 2$.
@@ -164,7 +164,7 @@ Với vector $x \in \R^n$, vector $g \in \partial \normone{x}$ khi và chỉ khi
 \end{equation}
 \end{theorem}
 
-\begin{proof}[Chứng minh theo hướng dẫn của giảng viên]
+\begin{proof}
 $(\implies)$ Giả sử $g \in \partial \normone{x}$, nghĩa là $\normone{z} \ge \normone{x} + g^T(z - x)$ với mọi $z \in \R^n$. Để tách riêng tọa độ thứ $i$, ta chọn $z = x + (t - x_i) e_i$, trong đó $e_i$ là vector đơn vị thứ $i$ và $t \in \R$ tùy ý. Khi đó:
 \[
 z_j = x_j \quad (\forall j \ne i), \quad \text{và} \quad z_i = t.

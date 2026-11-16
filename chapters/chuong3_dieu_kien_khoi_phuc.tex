@@ -4,7 +4,7 @@
 \chapter{Các điều kiện khôi phục và tính ổn định}
 \label{chap:dieu_kien_khoi_phuc}
 
-Để một bài toán khôi phục tín hiệu thưa có ý nghĩa thực tiễn, sinh viên ngành toán cần trả lời ba câu hỏi nền tảng:
+Để một bài toán khôi phục tín hiệu thưa có ý nghĩa thực tiễn, chúng ta cần trả lời ba câu hỏi nền tảng:
 \begin{enumerate}
     \item \emph{Tín hiệu thưa có được xác định duy nhất từ phép đo không?} (Tính duy nhất toán học).
     \item \emph{Thuật toán tối ưu lồi (Basis Pursuit) có tìm ra đúng nghiệm đó không?} (Tính khả giải thuật toán).
@@ -55,11 +55,11 @@ Nếu $h \ne 0$, thì $\spark(A) \le \normzero{h} \le 2k$, mâu thuẫn với gi
 Vì $\spark(A) \le m + 1$, điều kiện $\spark(A) > 2k$ đòi hỏi $m + 1 \ge \spark(A) \ge 2k + 1 \implies m \ge 2k$. Để khôi phục một tín hiệu $k$-thưa, số phép đo tối thiểu cần thiết luôn phải gấp đôi mức thưa. Tuy nhiên, định lý này chỉ khẳng định nghiệm là duy nhất trong mô hình tổ hợp $(P_0)$; nó chưa đảm bảo thuật toán đa thức Basis Pursuit có thể tìm ra nghiệm đó.
 \end{remark}
 
-\begin{exercise}[Bài tập tính Spark của giảng viên]
+\begin{exercise}[Tính Spark của ma trận]
 Cho ma trận $A = \begin{pmatrix} 1 & 0 & 1 \\ 0 & 1 & 1 \end{pmatrix} \in \R^{2 \times 3}$. Hãy tính $\spark(A)$ và nhận xét về khả năng khôi phục duy nhất các vector $1$-thưa.
 \end{exercise}
 
-\begin{proof}[Lời giải chi tiết của sinh viên]
+\begin{proof}[Lời giải]
 Gọi các cột của $A$ là $a_1 = (1, 0)^T, a_2 = (0, 1)^T, a_3 = (1, 1)^T$.
 \begin{itemize}
     \item Xét từng cặp 2 cột:
@@ -74,11 +74,11 @@ Do đó, số cột phụ thuộc tuyến tính nhỏ nhất là 3, tức:
 \]
 \textbf{Nhận xét khả năng khôi phục vector $1$-thưa ($k = 1$):}
 Ta có $2k = 2(1) = 2$. Vì $\spark(A) = 3 > 2$, điều kiện $\spark(A) > 2k$ được thỏa mãn tuyệt đối! 
-Do đó, ma trận $A$ đảm bảo **mọi vector $1$-thưa đều được xác định duy nhất** từ phép đo $b = Ax$.
+Do đó, ma trận $A$ đảm bảo \textbf{mọi vector $1$-thưa đều được xác định duy nhất} từ phép đo $b = Ax$.
 \end{proof}
 
 \section{Tính chất không gian hạt nhân (NSP) và điều kiện cần đủ của BP}
-Mặc dù Spark giải quyết tính duy nhất, nó không cho biết liệu thuật toán lồi Basis Pursuit có tìm được nghiệm hay không. Cầu nối toán học sâu sắc nhất trả lời câu hỏi này là **Tính chất không gian hạt nhân** (\emph{Null Space Property} - NSP).
+Mặc dù Spark giải quyết tính duy nhất, nó không cho biết liệu thuật toán lồi Basis Pursuit có tìm được nghiệm hay không. Cầu nối toán học sâu sắc nhất trả lời câu hỏi này là \textbf{Tính chất không gian hạt nhân} (\emph{Null Space Property} - NSP).
 
 \begin{definition}[NSP bậc $k$]
 Ma trận $A \in \R^{m \times n}$ thỏa mãn tính chất NSP bậc $k$ nếu với mọi vector khác không $h \in \ker(A) \setminus \{0\}$ và với mọi tập chỉ số $S \subset \{1, \dots, n\}$ thỏa mãn $|S| \le k$, ta đều có:
@@ -133,7 +133,7 @@ Như vậy $z$ là một nghiệm khả thi của bài toán BP ứng với dữ
 \end{proof}
 
 \section{Mutual Coherence và điều kiện đủ}
-Kiểm tra điều kiện NSP đòi hỏi phải giải một bài toán kiểm tra trên toàn bộ không gian vô hạn chiều $\ker(A)$, điều này rất khó khăn đối với các ma trận kích thước lớn. Để khắc phục, ta sử dụng **Mutual Coherence** (Độ tương quan qua lại) như một chỉ số đại số có thể tính toán trực tiếp với độ phức tạp $\mathcal{O}(m n^2)$.
+Kiểm tra điều kiện NSP đòi hỏi phải giải một bài toán kiểm tra trên toàn bộ không gian vô hạn chiều $\ker(A)$, điều này rất khó khăn đối với các ma trận kích thước lớn. Để khắc phục, ta sử dụng \textbf{Mutual Coherence} (Độ tương quan qua lại) như một chỉ số đại số có thể tính toán trực tiếp với độ phức tạp $\mathcal{O}(m n^2)$.
 
 Giả sử các cột $a_1, \dots, a_n$ của ma trận $A$ được chuẩn hóa theo chuẩn Euclid: $\normtwo{a_i} = 1, \forall i = 1, \dots, n$.
 
@@ -155,7 +155,7 @@ Nếu mức độ thưa $k$ thỏa mãn bất đẳng thức:
 thì Basis Pursuit khôi phục chính xác mọi vector $k$-thưa (quy ước nếu $\mu(A) = 0$ thì các cột trực giao hoàn toàn và khôi phục đúng với mọi $k$).
 \end{theorem}
 
-\begin{proof}[Chứng minh chi tiết theo gợi ý của giảng viên]
+\begin{proof}
 Cho $h \in \ker(A) \setminus \{0\}$. Ta có $Ah = 0 \implies A^T A h = 0$. Xét tọa độ thứ $i$ của vector $A^T A h$:
 \[
 (A^T A h)_i = a_i^T \left( \sum_{j=1}^n a_j h_j \right) = \|a_i\|_2^2 h_i + \sum_{j \ne i} (a_i^T a_j) h_j = 0.
@@ -184,7 +184,7 @@ Bây giờ, xét tập chỉ số $S$ bất kỳ có lực lượng $|S| \le k$.
 \end{proof}
 
 \begin{remark}
-Đây là **điều kiện đủ**, không phải điều kiện cần. Trong trường hợp ma trận có hai cột rất gần nhau khiến $\mu(A) \approx 1$, cận trên \eqref{eq:coherence_bound} suy thoái thành $k < 1$, dù trong thực tế nhiều tín hiệu thưa vẫn có thể khôi phục được nếu phần lớn các cột còn lại thỏa mãn tính chất phân tán tốt.
+Đây là \textbf{điều kiện đủ}, không phải điều kiện cần. Trong trường hợp ma trận có hai cột rất gần nhau khiến $\mu(A) \approx 1$, cận trên \eqref{eq:coherence_bound} suy thoái thành $k < 1$, dù trong thực tế nhiều tín hiệu thưa vẫn có thể khôi phục được nếu phần lớn các cột còn lại thỏa mãn tính chất phân tán tốt.
 \end{remark}
 
 \section{Tính chất đẳng cự hạn chế (RIP) và ý nghĩa hình học}
@@ -228,11 +228,11 @@ Do vector gốc $x^\natural$ thỏa mãn $\normtwo{Ax^\natural - b} = \normtwo{e
     \normone{\widehat{x}} \le \normone{x^\natural}.
 \end{equation}
 
-\begin{exercise}[Bài tập của giảng viên về ước lượng sai số miền đo]
+\begin{exercise}[Ước lượng sai số miền đo]
 Chứng minh ước lượng $\normtwo{A(\widehat{x} - x^\natural)} \le 2\varepsilon$ và giải thích vì sao nếu ma trận $A$ có hạt nhân lớn, riêng ước lượng này chưa đủ để khống chế sai số tái tạo $\normtwo{\widehat{x} - x^\natural}$.
 \end{exercise}
 
-\begin{proof}[Lời giải chi tiết của sinh viên]
+\begin{proof}[Lời giải]
 Áp dụng bất đẳng thức tam giác cho chuẩn Euclid:
 \[
 \normtwo{A(\widehat{x} - x^\natural)} = \normtwo{(A\widehat{x} - b) + (b - Ax^\natural)} \le \normtwo{A\widehat{x} - b} + \normtwo{b - Ax^\natural}.
@@ -283,7 +283,7 @@ Bảng \ref{tab:comparison_discussion} tổng hợp chi tiết bốn khái niệ
 \small
 \caption{Bảng đối sánh tổng hợp giữa Spark, Mutual Coherence, NSP và RIP.}
 \label{tab:comparison_discussion}
-\begin{tabular}{p{2.6cm}p{3.8cm}p{4.2cm}p{3.6cm}}
+\begin{tabular}{p{2.0cm}p{3.5cm}p{4.2cm}p{4.0cm}}
 \toprule
 \textbf{Tiêu chuẩn} & \textbf{Điều kiện toán học} & \textbf{Câu hỏi / Mục tiêu giải quyết} & \textbf{Đặc trưng \& Tính khả thi} \\
 \midrule

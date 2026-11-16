@@ -4,7 +4,7 @@
 \chapter{Thuật toán giải số và phân tích hội tụ}
 \label{chap:thuat_toan}
 
-Trong chương này, sinh viên ngành toán sẽ phân tích bản chất giải tích, xây dựng các bước lặp và chứng minh chặt chẽ tốc độ hội tụ của bốn thuật toán tối ưu tiêu biểu: ISTA, FISTA, GPSR và ADMM.
+Trong chương này, chúng ta sẽ phân tích bản chất giải tích, xây dựng các bước lặp và chứng minh chặt chẽ tốc độ hội tụ của bốn thuật toán tối ưu tiêu biểu: ISTA, FISTA, GPSR và ADMM.
 
 \section{Thuật toán co ngưỡng lặp (ISTA) cho bài toán LASSO}
 Xét bài toán LASSO ở dạng tổng của hai hàm lồi:
@@ -168,7 +168,7 @@ Dãy nghiệm $\{x^k\}$ sinh bởi FISTA thỏa mãn:
 \end{equation}
 \end{theorem}
 
-\begin{remark}[Lưu ý lý thuyết của giảng viên]
+\begin{remark}[Phân biệt tốc độ giá trị hàm và dãy lặp]
 Chặn trên của FISTA là tốc độ hội tụ của \textbf{giá trị hàm mục tiêu} ($F(x^k) \to F^*$). Cần lưu ý rằng kết quả này không tự động suy ra bản thân dãy vector nghiệm $\{x^k\}$ hội tụ trong mọi biến thể ngoại suy nếu không có thêm các giả thiết lồi ngặt hoặc kỹ thuật restart.
 \end{remark}
 
@@ -213,7 +213,7 @@ Nếu ma trận $A \in \R^{m \times n}$ có các hàng độc lập tuyến tín
 \end{equation}
 \end{theorem}
 
-\begin{proof}[Chứng minh từ điều kiện cực trị Lagrange theo yêu cầu của thầy]
+\begin{proof}[Chứng minh qua điều kiện KKT]
 Phép chiếu $\mathcal{P}_C(v)$ là nghiệm của bài toán tối ưu lồi có ràng buộc đẳng thức:
 \[
 \min_{x \in \R^n} \frac{1}{2} \normtwo{x - v}^2 \quad \text{s.t.} \quad Ax = b.
@@ -246,7 +246,7 @@ Chứng minh hoàn thành.
 \end{proof}
 
 \begin{remark}[Tối ưu hóa tính toán trong thực nghiệm số]
-Ma trận $A A^T \in \R^{m \times m}$ và phép phân tích Cholesky của nó chỉ cần thực hiện **một lần duy nhất** trước khi bước vào vòng lặp ADMM. Trong mỗi vòng lặp, việc tính $x^{k+1}$ chỉ tốn chi phí giải hệ phương trình ma trận tam giác với độ phức tạp $\mathcal{O}(m^2 + mn)$, giúp ADMM chạy cực kỳ nhanh và ổn định.
+Ma trận $A A^T \in \R^{m \times m}$ và phép phân tích Cholesky của nó chỉ cần thực hiện \textbf{một lần duy nhất} trước khi bước vào vòng lặp ADMM. Trong mỗi vòng lặp, việc tính $x^{k+1}$ chỉ tốn chi phí giải hệ phương trình ma trận tam giác với độ phức tạp $\mathcal{O}(m^2 + mn)$, giúp ADMM chạy cực kỳ nhanh và ổn định.
 
 Phần dư nguyên thủy $r^k \coloneqq x^k - z^k$ (đo mức vi phạm ràng buộc $x = z$) và phần dư đối ngẫu $s^k \coloneqq \rho(z^k - z^{k-1})$ được sử dụng làm tiêu chuẩn dừng tự nhiên: $\normtwo{r^k} \le \epsilon^{\mathrm{pri}}$ và $\normtwo{s^k} \le \epsilon^{\mathrm{dual}}$.
 \end{remark}

@@ -4,7 +4,7 @@
 \chapter{Thực nghiệm mô phỏng và câu hỏi tự kiểm tra}
 \label{chap:thuc_nghiem}
 
-Đúng theo định hướng nghiên cứu và yêu cầu của giảng viên hướng dẫn: \emph{``Sinh viên phải tự thực hiện kết quả số, tự ghi môi trường, seed, thông số và giải thích số liệu; không sao chép bảng số liệu có sẵn''}. Chương này trình bày chi tiết quy trình thiết kế mã nguồn cho 5 kịch bản thực nghiệm số độc lập, các biểu đồ kết quả mô phỏng trực quan, cùng hệ thống câu hỏi tự kiểm tra kèm lời giải chi tiết nhằm củng cố toàn diện bản chất toán học của đề tài.
+Chương này trình bày chi tiết quy trình thiết kế và thực nghiệm số cho 5 kịch bản mô phỏng độc lập, các biểu đồ kết quả mô phỏng trực quan, cùng hệ thống câu hỏi tự kiểm tra kèm lời giải chi tiết nhằm minh chứng và củng cố toàn diện bản chất toán học của đề tài.
 
 % ==============================================================================
 \section{Kịch bản thực nghiệm và phân tích kết quả mô phỏng}
@@ -29,7 +29,7 @@
         \[
         \mathrm{RelErr} \coloneqq \frac{\normtwo{\widehat{x} - x^\natural}}{\max(1, \normtwo{x^\natural})}.
         \]
-        Thử nghiệm được tính là **thành công** nếu $\mathrm{RelErr} < 10^{-3}$.
+        Thử nghiệm được tính là \textbf{thành công} nếu $\mathrm{RelErr} < 10^{-3}$.
     \end{enumerate}
     \item Tỷ lệ thành công $P(m, k) \in [0, 1]$ được vẽ dưới dạng biểu đồ đường chuyển pha.
 \end{itemize}
@@ -286,11 +286,11 @@ Tuy nhiên, tập hợp tất cả các vector $k$-thưa:
 \[
 \Sigma_k \coloneqq \{x \in \R^n : \normzero{x} \le k\} = \bigcup_{|S| \le k} \{x \in \R^n : \supp(x) \subseteq S\}
 \]
-không phải là một không gian vector mà là **hợp của $\binom{n}{k}$ không gian con $k$ chiều**. 
+không phải là một không gian vector mà là \textbf{hợp của $\binom{n}{k}$ không gian con $k$ chiều}. 
 Khi ma trận $A$ thỏa mãn điều kiện cách ly (cụ thể là $\spark(A) > 2k$), không tồn tại bất kỳ vector khác không nào thuộc $\ker(A)$ mà có số tọa độ khác không $\le 2k$. 
 
 Giả sử hệ có hai nghiệm $k$-thưa phân biệt $x, z \in \Sigma_k$ thỏa $Ax = Az = b$. Khi đó hiệu $h = x - z \in \ker(A)$ và thỏa mãn $\normzero{h} = \normzero{x - z} \le \normzero{x} + \normzero{z} \le 2k$. Do $\spark(A) > 2k$, điều này buộc $h = 0 \implies x = z$. 
-Như vậy, không gian affine nghiệm $x_0 + \ker(A)$ chỉ cắt tập hợp $\Sigma_k$ tại **đúng một điểm duy nhất**, loại bỏ hoàn toàn vô số nghiệm không thưa còn lại.
+Như vậy, không gian affine nghiệm $x_0 + \ker(A)$ chỉ cắt tập hợp $\Sigma_k$ tại \textbf{đúng một điểm duy nhất}, loại bỏ hoàn toàn vô số nghiệm không thưa còn lại.
 \end{proof}
 
 \begin{exercise}[Bài 3: Phân biệt Spark, NSP và RIP bằng một câu định nghĩa]
@@ -435,11 +435,11 @@ Khi dữ liệu đo bị ô nhiễm bởi nhiễu, vì sao mục tiêu khôi ph�
 
 \begin{proof}[Lời giải chi tiết]
 Xét mô hình đo có nhiễu: $b = A x^\natural + e$ với $e \ne 0$. 
-Không gian con sinh bởi $k$ cột tương ứng với tập hỗ trợ thực tế $S = \supp(x^\natural)$ là $\mathcal{R}(A_S) = \{A_S z : z \in \R^k\}$. Vì vector nhiễu $e \in \R^m$ mang tính ngẫu nhiên (ví dụ nhiễu Gaussian), vector quan sát $b = A_S x^\natural_S + e$ hầu như chắc chắn **không nằm trong không gian con $\mathcal{R}(A_S)$**.
+Không gian con sinh bởi $k$ cột tương ứng với tập hỗ trợ thực tế $S = \supp(x^\natural)$ là $\mathcal{R}(A_S) = \{A_S z : z \in \R^k\}$. Vì vector nhiễu $e \in \R^m$ mang tính ngẫu nhiên (ví dụ nhiễu Gaussian), vector quan sát $b = A_S x^\natural_S + e$ hầu như chắc chắn \textbf{không nằm trong không gian con $\mathcal{R}(A_S)$}.
 
-Nếu một thuật toán cố tình ép buộc khôi phục chính xác hệ thức đẳng thức $Ax = b$, thuật toán sẽ buộc phải huy động thêm các cột đo nằm ngoài tập hỗ trợ thực tế ($j \notin S$) để cố gắng khớp phần năng lượng của vector nhiễu $e$. Hiện tượng này gây ra lỗi **quá khớp nhiễu** (\emph{noise overfitting}), làm sai lệch hoàn toàn tập hỗ trợ và khiến vector khôi phục không còn thưa.
+Nếu một thuật toán cố tình ép buộc khôi phục chính xác hệ thức đẳng thức $Ax = b$, thuật toán sẽ buộc phải huy động thêm các cột đo nằm ngoài tập hỗ trợ thực tế ($j \notin S$) để cố gắng khớp phần năng lượng của vector nhiễu $e$. Hiện tượng này gây ra lỗi \textbf{quá khớp nhiễu} (\emph{noise overfitting}), làm sai lệch hoàn toàn tập hỗ trợ và khiến vector khôi phục không còn thưa.
 
-Do đó, mục tiêu toán học đúng đắn khi có nhiễu là **khôi phục ổn định** (\emph{stable recovery}): chấp nhận sai số tái tạo và kiểm soát sai số này bị chặn tuyến tính theo biên độ năng lượng của nhiễu:
+Do đó, mục tiêu toán học đúng đắn khi có nhiễu là \textbf{khôi phục ổn định} (\emph{stable recovery}): chấp nhận sai số tái tạo và kiểm soát sai số này bị chặn tuyến tính theo biên độ năng lượng của nhiễu:
 \[
 \normtwo{\widehat{x} - x^\natural} \le C_0 \frac{\sigma_k(x^\natural)_1}{\sqrt{k}} + C_1 \normtwo{e}.
 \]
@@ -449,7 +449,7 @@ Khi biên độ nhiễu tiến về 0 ($\normtwo{e} \to 0$), sai số khôi ph�
 % ==============================================================================
 \subsection{Khung tiêu chí đánh giá đề tài đề xuất}
 % ==============================================================================
-Bảng \ref{tab:evaluation_criteria} tổng hợp khung đánh giá đồ án theo đề xuất của bộ môn, giúp sinh viên tự rà soát toàn bộ kết quả nghiên cứu trước khi bảo vệ:
+Bảng \ref{tab:evaluation_criteria} tổng hợp khung đánh giá các tiêu chí kỹ thuật và thực nghiệm của đồ án:
 
 \begin{table}[htbp]
 \centering
