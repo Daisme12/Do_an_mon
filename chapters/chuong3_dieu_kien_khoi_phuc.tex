@@ -270,20 +270,48 @@ trong đó $C_0$ và $C_1$ là các hằng số hữu hạn chỉ phụ thuộc 
     \item $C_1 \varepsilon$: Sai số đo lường. Sai số tỷ lệ thuận tuyến tính với mức độ nhiễu và được chặn vững chắc, khẳng định tính ổn định của mô hình.
 \end{itemize}
 
-\section{Thảo luận và so sánh ba khái niệm trụ cột}
-\begin{table}[htbp]
+\section{Thảo luận và so sánh các điều kiện khôi phục}
+\label{sec:thao_luan_so_sanh}
+
+Ba khái niệm \textbf{Spark}, \textbf{NSP (Null Space Property)} và \textbf{RIP (Restricted Isometry Property)}, cùng với chỉ số đại số \textbf{Mutual Coherence $\mu(A)$}, hình thành nên hệ thống nền tảng lý thuyết hoàn chỉnh của Lấy mẫu nén. Mỗi tiêu chuẩn trả lời một câu hỏi toán học ở các mức độ trừu tượng và ứng dụng khác nhau.
+
+\subsection{Bảng so sánh tổng hợp các tiêu chuẩn lý thuyết}
+Bảng \ref{tab:comparison_discussion} tổng hợp chi tiết bốn khái niệm theo các tiêu chí: điều kiện toán học, mục tiêu giải quyết, vai trò trong mô hình và tính khả thi trong tính toán số:
+
+\begin{table}[H]
 \centering
-\caption{Bảng đối sánh tổng hợp giữa Spark, NSP và RIP theo yêu cầu thảo luận của giảng viên.}
+\small
+\caption{Bảng đối sánh tổng hợp giữa Spark, Mutual Coherence, NSP và RIP.}
 \label{tab:comparison_discussion}
-\begin{tabular}{lp{4cm}p{5.5cm}p{3cm}}
+\begin{tabular}{p{2.6cm}p{3.8cm}p{4.2cm}p{3.6cm}}
 \toprule
-\textbf{Khái niệm} & \textbf{Câu hỏi giải quyết} & \textbf{Bản chất toán học} & \textbf{Độ phức tạp kiểm tra} \\
+\textbf{Tiêu chuẩn} & \textbf{Điều kiện toán học} & \textbf{Câu hỏi / Mục tiêu giải quyết} & \textbf{Đặc trưng \& Tính khả thi} \\
 \midrule
-$\spark(A) > 2k$ & Nghiệm thưa có duy nhất không? & Số cột phụ thuộc tuyến tính tối thiểu trong $A$ & NP-hard (tổ hợp) \\
-NSP bậc $k$ & Thuật toán BP có tìm được không? & Phân bố năng lượng $\normone{h_S} < \normone{h_{S^c}}$ trên $\ker(A)$ & Khó kiểm tra số \\
-RIP $\delta_{2k}$ & Nghiệm có ổn định dưới nhiễu không? & Bảo toàn độ dài Euclid trên tập các vector thưa & Khó kiểm tra chặt \\
+\textbf{Spark} & $\spark(A) > 2k$ & \emph{Nghiệm $k$-thưa có duy nhất không?} Xác lập ranh giới lý thuyết cho bài toán không nhiễu $(P_0)$. & Kiểm tra NP-hard; chỉ bảo đảm tính duy nhất, không bảo đảm BP giải được. \\[0.25cm]
+\textbf{Mutual Coherence} & $k < \frac{1}{2}\left(1 + \frac{1}{\mu(A)}\right)$ & \emph{Có điều kiện đủ nào dễ tính không?} Cung cấp tiêu chuẩn kiểm tra nhanh trực tiếp trên các cột của $A$. & Tính toán rất nhanh $\mathcal{O}(mn^2)$; là điều kiện đủ quá chặt (bi quan) khi cột tương quan. \\[0.25cm]
+\textbf{NSP bậc $k$} & $\normone{h_S} < \normone{h_{S^c}}$ \newline $\forall h \in \ker(A) \setminus \{0\}, |S| \le k$ & \emph{Thuật toán BP có tìm được đúng nghiệm không?} Điều kiện cần và đủ cho Basis Pursuit không nhiễu. & Trọng tâm lý thuyết nối $A$ với chuẩn $\ell_1$; khó kiểm tra trực tiếp trên ma trận lớn. \\[0.25cm]
+\textbf{RIP $\delta_{2k}$} & $(1-\delta_{2k})\normtwo{h}^2 \le \normtwo{Ah}^2$ \newline $\le (1+\delta_{2k})\normtwo{h}^2, \, \delta_{2k} < \sqrt{2}-1$ & \emph{Nghiệm có ổn định dưới tác động của nhiễu không?} Cung cấp chặn sai số bền vững cho BPDN và LASSO. & Mạnh nhất; ma trận ngẫu nhiên (Gaussian, Bernoulli) thỏa mãn với xác suất cao khi $m \ge C k \log(n/k)$. \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Ba khái niệm trên hình thành một chuỗi logic hoàn chỉnh: **Spark** thiết lập giới hạn lý thuyết cho tính duy nhất; **NSP** là điều kiện cần và đủ cho thuật toán giải đa thức; và **RIP** là công cụ phân tích độ bền vững khi có nhiễu thực tế.
+\subsection{Sơ đồ phân tầng quan hệ logic giữa các điều kiện}
+Mối quan hệ kéo theo giữa các tiêu chuẩn được mô tả thông qua chuỗi logic một chiều sau:
+\begin{equation}
+    \text{RIP } (\delta_{2k} < \sqrt{2}-1) \implies \text{NSP (bậc } k) \implies \spark(A) > 2k \implies \text{Tính duy nhất của } (P_0),
+\end{equation}
+đồng thời đối với chỉ số tương quan qua lại:
+\begin{equation}
+    k < \frac{1}{2}\left(1 + \frac{1}{\mu(A)}\right) \implies \text{NSP (bậc } k).
+\end{equation}
+
+\textbf{Phân tích chi tiết các nấc phân tầng:}
+\begin{enumerate}
+    \item \textbf{Từ Tính duy nhất đến Thuật toán khả thi:} Điều kiện $\spark(A) > 2k$ bảo đảm tập giao giữa không gian affine nghiệm $Ax = b$ và tập hợp các vector $k$-thưa chỉ chứa đúng một điểm. Tuy nhiên, việc tìm điểm đó đòi hỏi phải giải bài toán NP-hard $(P_0)$. Để giải được trong thời gian đa thức bằng quy hoạch lồi Basis Pursuit, ma trận $A$ bắt buộc phải thỏa mãn tính chất ngặt hơn là \textbf{NSP bậc $k$}.
+    \item \textbf{Từ trường hợp không nhiễu đến có nhiễu:} NSP là điều kiện cần và đủ hoàn hảo cho bài toán lý tưởng $Ax = b$. Tuy nhiên, khi hệ thống xuất hiện nhiễu thực tế ($b = Ax^\natural + e$), điều kiện NSP nguyên bản không đủ để khống chế sai số tái tạo trong không gian gốc $\R^n$. Lúc này, tính chất đẳng cự hạn chế \textbf{RIP} phát huy vai trò quyết định, bảo đảm không chỉ tính đơn ánh mà còn bảo toàn khoảng cách Euclid cục bộ trên toàn bộ nón sai số thưa.
+    \item \textbf{Khoảng cách giữa lý thuyết và tính toán thực tế:} Cả Spark, NSP và việc xác định chính xác hằng số $\delta_k$ của RIP đều là các bài toán tổ hợp khó. Để vượt qua trở ngại này trong ứng dụng kỹ thuật, hai hướng tiếp cận chính được áp dụng:
+    \begin{itemize}
+        \item Sử dụng \textbf{Mutual Coherence $\mu(A)$}: Dễ dàng tính toán từ ma trận Gram $A^T A$, cung cấp một chặn đủ an toàn cho việc thiết kế ma trận đo xác định.
+        \item Sử dụng \textbf{Ma trận ngẫu nhiên (Random Matrices)}: Thay vì kiểm tra ma trận cụ thể, lý thuyết xác suất trong không gian nhiều chiều chứng minh rằng ma trận ngẫu nhiên Gaussian hoặc Bernoulli với kích thước $m \ge C k \log(n/k)$ sẽ thỏa mãn tính chất RIP với xác suất tiến tới 1 theo quy luật hàm mũ.
+    \end{itemize}
+\end{enumerate}
