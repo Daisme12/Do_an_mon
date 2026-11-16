@@ -6,11 +6,20 @@
 
 \ifXeTeX
   \usepackage{fontspec}
-  \setmainfont{Times New Roman}
-  \setmonofont{Menlo}[Scale=0.88]
+  \IfFontExistsTF{Times New Roman}{
+    \setmainfont{Times New Roman}
+  }{
+    \setmainfont{TeX Gyre Termes}
+  }
+  \IfFontExistsTF{Menlo}{
+    \setmonofont{Menlo}[Scale=0.88]
+  }{
+    \setmonofont{DejaVu Sans Mono}[Scale=0.82]
+  }
 \else
   \usepackage[utf8]{inputenc}
-  \usepackage[T5,T1]{fontenc}
+  \usepackage[T1,T5]{fontenc}
+  \usepackage{mathptmx}
 \fi
 
 % ==============================================================================
