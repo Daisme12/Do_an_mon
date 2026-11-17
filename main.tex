@@ -20,16 +20,16 @@
 \input{frontmatter/abstract}
 \clearpage
 
-% Mục lục & Danh mục hình vẽ, bảng biểu (đồng bộ cỡ chữ và khoảng cách đều nhau)
+% Mục lục & Danh mục hình vẽ, bảng biểu (cỡ chữ và khoảng cách cân đối, đều nhau)
 {
 \small
-\setstretch{0.95}
-\setlength{\parskip}{0pt}
+\setstretch{1.05}
+\setlength{\parskip}{2pt}
 \makeatletter
 \renewcommand*\l@chapter[2]{%
   \ifnum \c@tocdepth >\m@ne
     \addpenalty{-\@highpenalty}%
-    \vskip 0.35em \@plus\p@
+    \vskip 0.55em \@plus\p@
     \setlength\@tempdima{1.5em}%
     \begingroup
       \parindent \z@ \rightskip \@pnumwidth
@@ -46,7 +46,7 @@
 \clearpage
 
 \begingroup
-\renewcommand{\addvspace}[1]{\vspace{0pt}}
+\renewcommand{\addvspace}[1]{\vspace{3pt}}
 \phantomsection
 \addcontentsline{toc}{chapter}{Danh mục hình vẽ}
 \listoffigures
