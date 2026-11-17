@@ -267,36 +267,33 @@ v + t, & \text{nếu } v < -t,
 \]
 \end{proof}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    \begin{tikzpicture}[scale=1.18]
-        \draw[->, thick, gray] (-3.2, 0) -- (3.2, 0) node[right, black] {$v$};
-        \draw[->, thick, gray] (0, -2.2) -- (0, 2.3) node[above, black] {$\mathcal{S}_t(v)$};
+    \vspace{-0.2cm}
+    \begin{tikzpicture}[scale=0.92]
+        \draw[->, thick, gray] (-3.1, 0) -- (3.1, 0) node[right, black] {$v$};
+        \draw[->, thick, gray] (0, -1.85) -- (0, 2.05) node[above, black] {$\mathcal{S}_t(v)$};
         
         % Đường đồng nhất y = v (nét đứt)
-        \draw[dashed, gray!80, thick] (-2.1, -2.1) -- (2.1, 2.1) node[above right, font=\footnotesize] {$y = v$};
+        \draw[dashed, gray!80, thick] (-1.8, -1.8) -- (1.8, 1.8) node[above right, font=\footnotesize] {$y = v$};
         
         % Toán tử co ngưỡng mềm (với t = 1.0)
-        \draw[blue!80!black, ultra thick] (-2.8, -1.8) -- (-1.0, 0) -- (1.0, 0) -- (2.8, 1.8);
+        \draw[blue!80!black, ultra thick] (-2.6, -1.6) -- (-1.0, 0) -- (1.0, 0) -- (2.6, 1.6);
         
         % Đánh dấu ngưỡng -t và t
         \fill[red!80!black] (-1.0, 0) circle (2pt) node[below left] {$-t$};
         \fill[red!80!black] (1.0, 0) circle (2pt) node[below right] {$t$};
         
         % Ghi chú vùng triệt tiêu với mũi tên gọn gàng
-        \node[red!80!black, font=\footnotesize, align=center] (dead) at (-1.55, 0.95) {Vùng triệt tiêu\\về $0$ ($|v| \le t$)};
+        \node[red!80!black, font=\footnotesize, align=center] (dead) at (-1.55, 0.90) {Vùng triệt tiêu\\về $0$ ($|v| \le t$)};
         \draw[->, red!80!black, thick] (dead.south) to[bend right=15] (-0.45, 0.08);
         
         % Minh họa độ co dịch t
-        \draw[<->, teal!80!black, thick] (2.0, 1.0) -- (2.0, 2.0) node[midway, right, font=\footnotesize] {Co dịch $t$};
+        \draw[<->, teal!80!black, thick] (1.75, 0.75) -- (1.75, 1.75) node[midway, right, font=\footnotesize] {Co dịch $t$};
     \end{tikzpicture}
+    \vspace{-0.15cm}
     \caption{Đồ thị toán tử co ngưỡng mềm $\mathcal{S}_t(v)$ với ngưỡng $t > 0$.}
     \label{fig:soft_thresholding}
 \end{figure}
-
-\textbf{Giải thích ý nghĩa hình học của Hình \ref{fig:soft_thresholding}:}
-Đồ thị của $\mathcal{S}_t(v)$ (đường nét liền màu xanh) cho thấy hai cơ chế tác động đồng thời lên từng tọa độ $v$ so với đường đồng nhất $y = v$ (nét đứt):
-\begin{itemize}
-    \item \textbf{Triệt tiêu các thành phần nhỏ ($|v| \le t$):} Mọi giá trị nằm trong vùng chết $[-t, t]$ bị kéo chính xác về $0$, trực tiếp tạo ra \emph{tính thưa} cho nghiệm.
-    \item \textbf{Co ngưỡng liên tục ($|v| > t$):} Các giá trị vượt ngưỡng không bị giữ nguyên như co ngưỡng cứng (\emph{hard-thresholding}) mà bị co dịch về phía $0$ một lượng đúng bằng $t$ ($v - t$ khi $v > t$ và $v + t$ khi $v < -t$), giúp hàm liên tục và bảo toàn tính lồi cho các thuật toán lặp ở Chương 4.
-\end{itemize}
+\vspace{-0.2cm}
+\noindent\textbf{Ý nghĩa hình học của Hình \ref{fig:soft_thresholding}:} So với đường đồng nhất $y = v$, $\mathcal{S}_t(v)$ kết hợp hai cơ chế: (i) \emph{triệt tiêu về $0$} toàn bộ các tọa độ nhỏ trong vùng chết $[-t, t]$ để trực tiếp tạo độ thưa; và (ii) \emph{co dịch liên tục} một lượng $t$ đối với các giá trị vượt ngưỡng ($|v| > t$) nhằm bảo toàn tính liên tục và tính lồi cho các thuật toán lặp ở Chương 4.
