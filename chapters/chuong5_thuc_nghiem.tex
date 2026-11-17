@@ -124,6 +124,7 @@ Chương này trình bày chi tiết quy trình thiết kế và kết quả th�
         \item Tại tỷ lệ đo $30\%$ ($m = 0{,}3n$): $\mathrm{PSNR} = 17{,}38\text{ dB}$, $\mathrm{SSIM} = 0{,}869$.
         \item Tại tỷ lệ đo $50\%$ ($m = 0{,}5n$): $\mathrm{PSNR} = 23{,}57\text{ dB}$, $\mathrm{SSIM} = 0{,}972$, tái tạo sắc nét toàn bộ cấu trúc biên và vùng ảnh.
     \end{itemize}
+    \item \textbf{Hạn chế của giả thiết thưa xấp xỉ:} Vì ảnh tự nhiên không thưa chính xác tuyệt đối trong miền Wavelet ($\sigma_k(\theta^\natural)_1 > 0$), khi tỷ lệ đo thấp ($m = 0{,}3n$), phần năng lượng của các hệ số chi tiết tần số cao bị cắt bỏ kết hợp với tác động của hạng tử $\sigma_k(\theta^\natural)_1/\sqrt{k}$ trong chặn sai số \eqref{eq:bpdn_error_bound} gây ra hiện tượng mờ cạnh và nhiễu gợn nhẹ. Ngoài ra, nếu ảnh có nhiều kết cấu phức tạp không phù hợp với cơ sở Wavelet cố định, giả thiết thưa xấp xỉ sẽ suy yếu và đòi hỏi nhiều phép đo hơn hoặc chuyển sang các mô hình như Tổng biến thiên (TV).
 \end{itemize}
 
 \begin{figure}[htbp]
