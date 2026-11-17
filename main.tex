@@ -20,7 +20,7 @@
 \input{frontmatter/abstract}
 \clearpage
 
-% Mục lục (giãn dòng và khoảng cách chương gọn để vừa trong 2 trang)
+% Mục lục & Danh mục hình vẽ, bảng biểu (đồng bộ cỡ chữ và khoảng cách đều nhau)
 {
 \small
 \setstretch{0.95}
@@ -43,10 +43,10 @@
   \fi}
 \makeatother
 \tableofcontents
-}
 \clearpage
 
-% Danh sách hình vẽ & bảng biểu
+\begingroup
+\renewcommand{\addvspace}[1]{\vspace{0pt}}
 \phantomsection
 \addcontentsline{toc}{chapter}{Danh mục hình vẽ}
 \listoffigures
@@ -56,6 +56,8 @@
 \addcontentsline{toc}{chapter}{Danh mục bảng biểu}
 \listoftables
 \clearpage
+\endgroup
+}
 
 % ------------------------------------------------------------------------------
 % 3. NỘI DUNG CHÍNH (MAINMATTER: CÁC CHƯƠNG)
