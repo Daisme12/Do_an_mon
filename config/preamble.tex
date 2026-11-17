@@ -92,23 +92,23 @@
 % ==============================================================================
 \makeatletter
 \def\@makechapterhead#1{%
-  \vspace*{5\p@}%
-  {\parindent \z@ \centering \normalfont
+  \vspace*{2\p@}%
+  {\parindent \z@ \parskip \z@ \centering \normalfont \setstretch{1.05}
     \ifnum \c@secnumdepth >\m@ne
-      \fontsize{14pt}{18pt}\selectfont\bfseries \MakeUppercase{\chaptertitlename}\ \thechapter
+      \fontsize{14pt}{17pt}\selectfont\bfseries \MakeUppercase{\chaptertitlename}\ \thechapter
       \par\nobreak
-      \vskip 6\p@
+      \vskip 2\p@
     \fi
     \interlinepenalty\@M
-    \fontsize{16pt}{22pt}\selectfont\bfseries \MakeUppercase{#1}\par\nobreak
-    \vskip 20\p@
+    \fontsize{16pt}{20pt}\selectfont\bfseries \MakeUppercase{#1}\par\nobreak
+    \vskip 12\p@
   }}
 \def\@makeschapterhead#1{%
-  \vspace*{5\p@}%
-  {\parindent \z@ \centering \normalfont
+  \vspace*{2\p@}%
+  {\parindent \z@ \parskip \z@ \centering \normalfont \setstretch{1.05}
     \interlinepenalty\@M
-    \fontsize{16pt}{22pt}\selectfont\bfseries \MakeUppercase{#1}\par\nobreak
-    \vskip 20\p@
+    \fontsize{16pt}{20pt}\selectfont\bfseries \MakeUppercase{#1}\par\nobreak
+    \vskip 12\p@
   }}
 \renewcommand\section{\@startsection {section}{1}{\z@}%
   {-2.8ex \@plus -1ex \@minus -.2ex}%
