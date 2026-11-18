@@ -1,10 +1,10 @@
 % ==============================================================================
 % TRANG BÌA CHUẨN ĐỒ ÁN - ĐẠI HỌC GIAO THÔNG VẬN TẢI
-% Thiết kế theo mẫu chuẩn viền kép góc giao nhau & logo UTC
+% Gồm 2 bìa: Bìa chính (không có tên thành viên) và Bìa phụ (có tên thành viên)
 % ==============================================================================
-\begin{titlepage}
+
+\newcommand{\drawcoverborder}{%
     \begin{tikzpicture}[remember picture, overlay]
-        % Tọa độ các đỉnh khung bìa
         \coordinate (NW) at ($(current page.north west) + (22mm, -18mm)$);
         \coordinate (SE) at ($(current page.south east) + (-16mm, 18mm)$);
         \coordinate (NE) at ($(current page.north east) + (-16mm, -18mm)$);
@@ -21,37 +21,65 @@
         \draw[line width=0.6pt, black] 
             ($(NW) + (3.6mm, -3.6mm)$) rectangle ($(SE) + (-3.6mm, 3.6mm)$);
             
-        % Họa tiết 4 góc vuông giao nhau kiểu đồ án chuẩn
+        % Họa tiết 4 góc vuông giao nhau
         \foreach \corner in {NW, NE, SW, SE} {
             \draw[line width=0.8pt, black, fill=white] 
                 ($(\corner) + (-3mm, -3mm)$) rectangle ($(\corner) + (3mm, 3mm)$);
             \draw[line width=0.5pt, red!80!black] 
                 ($(\corner) + (-1.8mm, -1.8mm)$) rectangle ($(\corner) + (1.8mm, 1.8mm)$);
         }
-    \end{tikzpicture}
+    \end{tikzpicture}%
+}
 
+% ------------------------------------------------------------------------------
+% 1. BÌA CHÍNH (Không có danh sách thành viên)
+% ------------------------------------------------------------------------------
+\begin{titlepage}
+    \drawcoverborder
+    \centering
+    \vspace*{-0.6cm}
+
+    {\fontsize{13pt}{16pt}\selectfont\bfseries TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI\par}
+    \vspace{0.15cm}
+    {\fontsize{13pt}{16pt}\selectfont\bfseries KHOA CÔNG NGHỆ THÔNG TIN\par}
+    
+    \vspace{1.2cm}
+    \includegraphics[width=3.4cm, height=3.4cm, keepaspectratio]{logo_utc.jpg}
+    \vspace{1.2cm}
+
+    {\fontsize{18pt}{22pt}\selectfont\bfseries ĐỒ ÁN MÔN\par}
+    \vspace{1.0cm}
+
+    {\fontsize{15pt}{21pt}\selectfont\bfseries TÌM HIỂU BÀI TOÁN KHÔI PHỤC TÍN HIỆU THƯA\\BẰNG CỰC TIỂU HÓA CHUẨN $\ell_1$\par}
+
+    \vfill
+    {\fontsize{12pt}{15pt}\selectfont\bfseries HÀ NỘI, T11/2026\par}
+    \vspace*{0.6cm}
+\end{titlepage}
+
+% ------------------------------------------------------------------------------
+% 2. BÌA PHỤ (Có danh sách thành viên và Giảng viên hướng dẫn)
+% ------------------------------------------------------------------------------
+\begin{titlepage}
+    \drawcoverborder
     \centering
     \vspace*{-0.8cm}
 
-    % TÊN TRƯỜNG & KHOA
     {\fontsize{13pt}{16pt}\selectfont\bfseries TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI\par}
     \vspace{0.1cm}
     {\fontsize{13pt}{16pt}\selectfont\bfseries KHOA CÔNG NGHỆ THÔNG TIN\par}
     
     \vspace{0.4cm}
-    % LOGO TRƯỜNG ĐH GIAO THÔNG VẬN TẢI
     \includegraphics[width=3.0cm, height=3.0cm, keepaspectratio]{logo_utc.jpg}
     \vspace{0.4cm}
 
-    % TÊN BÁO CÁO & ĐỀ TÀI
     {\fontsize{16pt}{20pt}\selectfont\bfseries ĐỒ ÁN MÔN\par}
     \vspace{0.4cm}
 
     {\fontsize{14pt}{19pt}\selectfont\bfseries TÌM HIỂU BÀI TOÁN KHÔI PHỤC TÍN HIỆU THƯA\\BẰNG CỰC TIỂU HÓA CHUẨN $\ell_1$\par}
 
-    \vspace{0.6cm}
+    \vspace{0.7cm}
 
-    % THÔNG TIN SINH VIÊN VÀ GIẢNG VIÊN HƯỚNG DẪN
     \begin{flushleft}
         \hspace*{1.0cm}
         \begin{tabular}{rll}
@@ -63,9 +91,7 @@
             & Đoàn Văn Bảo         & \quad 233030554 \\[0.08cm]
             & Nguyễn Bùi Quang Huy & \quad 233030583 \\[0.08cm]
             & Nguyễn Quang Duy     & \quad 233030561 \\[0.08cm]
-            & Phạm Đức Tuấn Hùng   & \quad 233030582 \\[0.25cm]
-            \textbf{Lớp:} 
-            & \multicolumn{2}{l}{Toán ứng dụng K64} \\[0.15cm]
+            & Phạm Đức Tuấn Hùng   & \quad 233030582 \\[0.30cm]
             \textbf{Giảng viên hướng dẫn:} 
             & \multicolumn{2}{l}{Nguyễn Thế Vinh}
         \end{tabular}
